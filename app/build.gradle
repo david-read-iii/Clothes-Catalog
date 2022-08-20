@@ -1,0 +1,19 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    compileSdk 32
+    defaultConfig {
+        applicationId "com.davidread.clothescatalog"
+        minSdk 24
+        targetSdk 32
+        versionCode 1
+        versionName "1.0"
+    }
+}
+
+dependencies {
+    // Material Components library. Contains modular and customizable Material Design UI components.
+    implementation 'com.google.android.material:material:1.6.1'
+}
