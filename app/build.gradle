@@ -10,10 +10,14 @@ android {
         targetSdk 32
         versionCode 1
         versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 }
 
 dependencies {
     // Material Components library. Contains modular and customizable Material Design UI components.
-    implementation 'com.google.android.material:material:1.6.1'
+    implementation "com.google.android.material:material:1.6.1"
+
+    // AndroidX Rules library. Needed for ProviderTestRule.
+    androidTestImplementation "androidx.test:rules:1.4.0"
 }

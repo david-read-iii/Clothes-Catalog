@@ -23,6 +23,11 @@
             </intent-filter>
         </activity>
 
+        <provider
+            android:name=".database.ProductProvider"
+            android:authorities="com.davidread.clothescatalog"
+            android:exported="false" />
+
     </application>
 
 </manifest>
