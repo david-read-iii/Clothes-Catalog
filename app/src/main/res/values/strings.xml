@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Clothes Catalog</string>
+    <string name="query_failed_message">Query failed</string>
 </resources>
