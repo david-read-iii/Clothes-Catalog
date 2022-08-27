@@ -67,8 +67,11 @@ public class InventoryActivity extends AppCompatActivity {
             insertRow();
             queryRows();
             return true;
-        } else if (id == R.id.action_delete_all) {
-            Toast.makeText(this, R.string.action_delete_all_label, Toast.LENGTH_SHORT).show();
+        }
+        // Delete all rows.
+        else if (id == R.id.action_delete_all) {
+            deleteAllRows();
+            queryRows();
             return true;
         }
         // Superclass will handle all other clicks.
@@ -167,5 +170,22 @@ public class InventoryActivity extends AppCompatActivity {
         }
 
         cursor.close();
+    }
+
+    /**
+     * Deletes all data from the product provider. If the deletion operation fails, it shows an
+     * error toast is shown.
+     */
+    private void deleteAllRows() {
+        // Perform deletion.
+        int countRowsDeleted = getContentResolver().delete(
+                ProductContract.ProductEntry.CONTENT_URI,
+                null,
+                null
+        );
+        if (countRowsDeleted == -1) {
+            // Deletion failed.
+            Toast.makeText(this, R.string.delete_failed_message, Toast.LENGTH_SHORT).show();
+        }
     }
 }
