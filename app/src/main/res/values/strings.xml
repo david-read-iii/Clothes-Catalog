@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">Clothes Catalog</string>
     <string name="query_failed_message">Query failed</string>
+    <string name="action_insert_dummy_label">Insert Dummy Row</string>
+    <string name="action_delete_all_label">Delete All Rows</string>
 </resources>
