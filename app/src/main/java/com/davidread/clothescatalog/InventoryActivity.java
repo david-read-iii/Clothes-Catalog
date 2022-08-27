@@ -4,7 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ContentValues;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,6 +16,7 @@ import android.widget.Toast;
 import com.davidread.clothescatalog.database.ProductContract;
 
 import java.util.Arrays;
+import java.util.Random;
 
 /**
  * Provides a user interface for browsing a list of products queried from the product provider.
@@ -59,8 +62,10 @@ public class InventoryActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
+        // Insert a dummy row.
         if (id == R.id.action_insert_dummy) {
-            Toast.makeText(this, R.string.action_insert_dummy_label, Toast.LENGTH_SHORT).show();
+            insertRow();
+            queryRows();
             return true;
         } else if (id == R.id.action_delete_all) {
             Toast.makeText(this, R.string.action_delete_all_label, Toast.LENGTH_SHORT).show();
@@ -70,6 +75,53 @@ public class InventoryActivity extends AppCompatActivity {
         else {
             return super.onOptionsItemSelected(item);
         }
+    }
+
+    /**
+     * Inserts a row of dummy data into the product provider. If the insertion operation fails, an
+     * error toast is shown.
+     */
+    private void insertRow() {
+        // Perform insertion.
+        Uri insertUri = getContentResolver().insert(
+                ProductContract.ProductEntry.CONTENT_URI,
+                getRandomContentValues()
+        );
+        if (insertUri == null) {
+            // Insertion failed.
+            Toast.makeText(this, R.string.insert_failed_message, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Returns a {@link ContentValues} of dummy product data to insert into the product provider.
+     *
+     * @return A row of dummy product data.
+     */
+    @NonNull
+    private ContentValues getRandomContentValues() {
+        Random random = new Random(System.currentTimeMillis());
+        ContentValues values = new ContentValues();
+        values.put(
+                ProductContract.ProductEntry.COLUMN_NAME,
+                DummyConstants.DUMMY_NAMES[random.nextInt(DummyConstants.DUMMY_NAMES.length)]
+        );
+        values.put(ProductContract.ProductEntry.COLUMN_PRICE, random.nextInt(10000));
+        values.put(ProductContract.ProductEntry.COLUMN_QUANTITY, random.nextInt(1000));
+        values.put(
+                ProductContract.ProductEntry.COLUMN_SUPPLIER,
+                DummyConstants.DUMMY_SUPPLIERS[random.nextInt(DummyConstants.DUMMY_SUPPLIERS.length)]
+        );
+        values.put(
+                ProductContract.ProductEntry.COLUMN_PICTURE,
+                new byte[]{
+                        (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
+                        (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
+                        (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
+                        (byte) (random.nextInt((127 - (-128)) + 1) + (-128))
+                }
+        );
+        return values;
     }
 
     /**
