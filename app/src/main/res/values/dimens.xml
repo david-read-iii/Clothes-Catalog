@@ -2,4 +2,5 @@
 <resources>
     <dimen name="generic_activity_margin">16dp</dimen>
     <dimen name="list_item_margin">16dp</dimen>
+    <dimen name="list_item_text_margin">8dp</dimen>
 </resources>

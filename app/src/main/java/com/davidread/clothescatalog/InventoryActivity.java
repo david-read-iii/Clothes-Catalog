@@ -3,6 +3,7 @@ package com.davidread.clothescatalog;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.ContentValues;
@@ -23,13 +24,13 @@ import java.util.Random;
 public class InventoryActivity extends AppCompatActivity {
 
     /**
-     * List representation of the product provider.
+     * Adapts a {@link Cursor} of data from the product provider for a {@link RecyclerView}.
      */
     private ProductCursorAdapter productCursorAdapter;
 
     /**
-     * Callback invoked to initialize the activity. Initializes member variables and makes an
-     * initial query for product provider data.
+     * Callback invoked to initialize the activity. Initializes member variables, sets up the
+     * {@link RecyclerView} and makes an initial query for product provider data.
      */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -38,6 +39,11 @@ public class InventoryActivity extends AppCompatActivity {
         productCursorAdapter = new ProductCursorAdapter();
         RecyclerView recyclerView = findViewById(R.id.product_recycler_view);
         recyclerView.setAdapter(productCursorAdapter);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
+                this,
+                DividerItemDecoration.VERTICAL
+        );
+        recyclerView.addItemDecoration(dividerItemDecoration);
         queryRows();
     }
 
