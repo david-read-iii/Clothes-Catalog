@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.davidread.clothescatalog.database.ProductContract;
@@ -83,7 +84,7 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
     /**
      * Set a new {@link Cursor} to adapt.
      */
-    public void setCursor(@NonNull Cursor newCursor) {
+    public void setCursor(@Nullable Cursor newCursor) {
         if (cursor != null) {
             cursor.close();
         }
