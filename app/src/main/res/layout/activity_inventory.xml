@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.recyclerview.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/product_recycler_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".InventoryActivity">
-
-    <TextView
-        android:id="@+id/database_info_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/generic_activity_margin"
-        tools:text="Count=1\nColumns=[_id, name, price, quantity, supplier, picture]\n\n1, Super Soft Icon T-Shirt, 1000, 5, Grainger Industrial Supply, [0, 0, 0, 0]" />
-
-</ScrollView>
+    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+    tools:context=".InventoryActivity"
+    tools:listitem="@layout/list_item" />
