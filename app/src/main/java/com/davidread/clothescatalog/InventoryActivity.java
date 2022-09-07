@@ -3,6 +3,8 @@ package com.davidread.clothescatalog;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -10,12 +12,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.davidread.clothescatalog.database.ProductContract;
 
-import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -24,19 +24,26 @@ import java.util.Random;
 public class InventoryActivity extends AppCompatActivity {
 
     /**
-     * Contains the string representation of the product provider.
+     * Adapts a {@link Cursor} of data from the product provider for a {@link RecyclerView}.
      */
-    private TextView databaseInfoTextView;
+    private ProductCursorAdapter productCursorAdapter;
 
     /**
-     * Callback invoked to initialize the activity. Initializes member variables and makes an
-     * initial query for product provider data.
+     * Callback invoked to initialize the activity. Initializes member variables, sets up the
+     * {@link RecyclerView} and makes an initial query for product provider data.
      */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inventory);
-        databaseInfoTextView = findViewById(R.id.database_info_text_view);
+        productCursorAdapter = new ProductCursorAdapter();
+        RecyclerView recyclerView = findViewById(R.id.product_recycler_view);
+        recyclerView.setAdapter(productCursorAdapter);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
+                this,
+                DividerItemDecoration.VERTICAL
+        );
+        recyclerView.addItemDecoration(dividerItemDecoration);
         queryRows();
     }
 
@@ -128,8 +135,8 @@ public class InventoryActivity extends AppCompatActivity {
     }
 
     /**
-     * Queries the product provider for all its data and writes its string representation to
-     * {@link #databaseInfoTextView}. If the query operation fails, an error toast is shown.
+     * Queries the product provider for all its data and passes it to {@link #productCursorAdapter}
+     * to adapt for the recycler view. If the query operation fails, an error toast is shown.
      */
     private void queryRows() {
         // Perform query.
@@ -147,29 +154,8 @@ public class InventoryActivity extends AppCompatActivity {
             return;
         }
 
-        // Write header content.
-        databaseInfoTextView.setText("");
-        String count = String.format("Count=%s\n", cursor.getCount());
-        databaseInfoTextView.append(count);
-        String columns = String.format("Columns=%s\n", Arrays.toString(cursor.getColumnNames()));
-        databaseInfoTextView.append(columns);
-        databaseInfoTextView.append("\n");
-
-        // Write rows content.
-        while (cursor.moveToNext()) {
-            String row = String.format(
-                    "%s, %s, %s, %s, %s, %s\n",
-                    cursor.getString(0),
-                    cursor.getString(1),
-                    cursor.getString(2),
-                    cursor.getString(3),
-                    cursor.getString(4),
-                    Arrays.toString(cursor.getBlob(5))
-            );
-            databaseInfoTextView.append(row);
-        }
-
-        cursor.close();
+        // Pass data to adapter.
+        productCursorAdapter.setCursor(cursor);
     }
 
     /**
