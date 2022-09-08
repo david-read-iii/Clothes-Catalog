@@ -5,4 +5,6 @@
     <string name="delete_failed_message">Deletion failed</string>
     <string name="action_insert_dummy_label">Insert Dummy Row</string>
     <string name="action_delete_all_label">Delete All Rows</string>
+    <string name="empty_list_primary_label">It\'s a bit lonely here…</string>
+    <string name="empty_list_secondary_label">Get started by adding a product</string>
 </resources>
