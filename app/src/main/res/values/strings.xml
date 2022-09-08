@@ -7,4 +7,6 @@
     <string name="action_delete_all_label">Delete All Rows</string>
     <string name="empty_list_primary_label">It\'s a bit lonely here…</string>
     <string name="empty_list_secondary_label">Get started by adding a product</string>
+    <string name="decrement_quantity_button_label">-</string>
+    <string name="increment_quantity_button_label">+</string>
 </resources>
