@@ -109,8 +109,8 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
      */
     public interface ProductClickListener {
         void onItemClick(int id);
-        void onDecrementButtonClick(int id);
-        void onIncrementButtonClick(int id);
+        void onDecrementButtonClick(int id, int quantity);
+        void onIncrementButtonClick(int id, int quantity);
     }
 
     /**
@@ -159,25 +159,19 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
         }
 
         /**
-         * Invoked when the item view or a button in the item view is clicked. It gets the id of
-         * the product that corresponds with this view holder and invokes the appropriate
-         * {@link #listener} callback with that id.
+         * Invoked when the item view or a button in the item view is clicked. It calls the
+         * appropriate {@link #listener} callback.
          *
          * @param view View being clicked.
          */
         @Override
         public void onClick(View view) {
-            int position = getAdapterPosition();
-            cursor.moveToPosition(position);
-            int idColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry._ID);
-            int id = cursor.getInt(idColumnIndex);
-
             if (view == itemView) {
-                listener.onItemClick(id);
+                listener.onItemClick(getId());
             } else if (view == decrementButton) {
-                listener.onDecrementButtonClick(id);
+                listener.onDecrementButtonClick(getId(), getQuantity());
             } else if (view == incrementButton) {
-                listener.onIncrementButtonClick(id);
+                listener.onIncrementButtonClick(getId(), getQuantity());
             }
         }
 
@@ -191,6 +185,32 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
 
         public TextView getQuantityTextView() {
             return quantityTextView;
+        }
+
+        /**
+         * Returns the id of the product that corresponds with this view holder.
+         *
+         * @return Id corresponding with this view holder.
+         */
+        private int getId() {
+            int position = getAdapterPosition();
+            cursor.moveToPosition(position);
+            int idColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry._ID);
+            return cursor.getInt(idColumnIndex);
+        }
+
+        /**
+         * Returns the quantity of the product that corresponds with this view holder.
+         *
+         * @return Quantity corresponding with this view holder.
+         */
+        private int getQuantity() {
+            int position = getAdapterPosition();
+            cursor.moveToPosition(position);
+            int quantityColumnIndex = cursor.getColumnIndex(
+                    ProductContract.ProductEntry.COLUMN_QUANTITY
+            );
+            return cursor.getInt(quantityColumnIndex);
         }
     }
 }

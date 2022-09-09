@@ -9,6 +9,7 @@ import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
@@ -165,25 +166,55 @@ public class InventoryActivity extends AppCompatActivity implements
     }
 
     /**
-     * Invoked when the decrement button of a list item in the recycler view is clicked. Does
-     * nothing for now.
+     * Invoked when the decrement button of a list item in the recycler view is clicked. It updates
+     * the appropriate product in the product provider with a quantity decremented by one.
      *
-     * @param id Id of the product corresponding with this list item.
+     * @param id       Id of the product corresponding with this list item.
+     * @param quantity Quantity of the product corresponding with this list item.
      */
     @Override
-    public void onDecrementButtonClick(int id) {
-        Toast.makeText(this, "onDecrementButtonClick(" + id + ")", Toast.LENGTH_SHORT).show();
+    public void onDecrementButtonClick(int id, int quantity) {
+        // Perform update.
+        Uri uri = ContentUris.withAppendedId(ProductContract.ProductEntry.CONTENT_URI, id);
+        ContentValues values = new ContentValues();
+        values.put(ProductContract.ProductEntry.COLUMN_QUANTITY, quantity - 1);
+        int countRowsUpdated = getContentResolver().update(
+                uri,
+                values,
+                null,
+                null
+        );
+
+        if (countRowsUpdated == -1) {
+            // Update failed.
+            Toast.makeText(this, R.string.update_failed_message, Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
-     * Invoked when the increment button of a list item in the recycler view is clicked. Does
-     * nothing for now.
+     * Invoked when the increment button of a list item in the recycler view is clicked. It updates
+     * the appropriate product in the product provider with a quantity incremented by one.
      *
-     * @param id Id of the product corresponding with this list item.
+     * @param id       Id of the product corresponding with this list item.
+     * @param quantity Quantity of the product corresponding with this list item.
      */
     @Override
-    public void onIncrementButtonClick(int id) {
-        Toast.makeText(this, "onIncrementButtonClick(" + id + ")", Toast.LENGTH_SHORT).show();
+    public void onIncrementButtonClick(int id, int quantity) {
+        // Perform update.
+        Uri uri = ContentUris.withAppendedId(ProductContract.ProductEntry.CONTENT_URI, id);
+        ContentValues values = new ContentValues();
+        values.put(ProductContract.ProductEntry.COLUMN_QUANTITY, quantity + 1);
+        int countRowsUpdated = getContentResolver().update(
+                uri,
+                values,
+                null,
+                null
+        );
+
+        if (countRowsUpdated == -1) {
+            // Update failed.
+            Toast.makeText(this, R.string.update_failed_message, Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
