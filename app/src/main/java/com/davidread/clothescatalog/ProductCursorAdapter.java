@@ -4,6 +4,7 @@ import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -18,14 +19,24 @@ import com.davidread.clothescatalog.database.ProductContract;
 public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdapter.ProductViewHolder> {
 
     /**
+     * Listener that specifies what to do when a list item is clicked and when the buttons inside of
+     * a list item are clicked.
+     */
+    private final ProductClickListener listener;
+
+    /**
      * {@link Cursor} to be adapted.
      */
     private Cursor cursor;
 
     /**
-     * Constructs a new adapter with a {@code null} {@link #cursor}.
+     * Constructs a new adapter with a listener for handling clicks.
+     *
+     * @param listener Specifies what to do when a list item is clicked or when a list item button
+     *                 is clicked.
      */
-    public ProductCursorAdapter() {
+    public ProductCursorAdapter(@NonNull ProductClickListener listener) {
+        this.listener = listener;
     }
 
     /**
@@ -93,10 +104,20 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
     }
 
     /**
+     * Interface definition for a callback to be invoked when a list item is clicked or when the
+     * buttons inside of the list item are clicked.
+     */
+    public interface ProductClickListener {
+        void onItemClick(int id);
+        void onDecrementButtonClick(int id);
+        void onIncrementButtonClick(int id);
+    }
+
+    /**
      * Describes a single product item view and metadata about its place within the
      * {@link RecyclerView}.
      */
-    protected static class ProductViewHolder extends RecyclerView.ViewHolder {
+    protected class ProductViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         /**
          * Holds the name of the product.
@@ -114,15 +135,50 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
         private final TextView quantityTextView;
 
         /**
+         * Increments and decrements the quantity of the product.
+         */
+        private final Button decrementButton;
+        private final Button incrementButton;
+
+        /**
          * Constructs a new view holder for the given item view.
          *
          * @param itemView Item view to be held.
          */
         public ProductViewHolder(@NonNull View itemView) {
             super(itemView);
-            this.nameTextView = itemView.findViewById(R.id.name_text_view);
-            this.priceTextView = itemView.findViewById(R.id.price_text_view);
-            this.quantityTextView = itemView.findViewById(R.id.quantity_text_view);
+            nameTextView = itemView.findViewById(R.id.name_text_view);
+            priceTextView = itemView.findViewById(R.id.price_text_view);
+            quantityTextView = itemView.findViewById(R.id.quantity_text_view);
+            decrementButton = itemView.findViewById(R.id.decrement_quantity_button);
+            incrementButton = itemView.findViewById(R.id.increment_quantity_button);
+
+            itemView.setOnClickListener(this);
+            decrementButton.setOnClickListener(this);
+            incrementButton.setOnClickListener(this);
+        }
+
+        /**
+         * Invoked when the item view or a button in the item view is clicked. It gets the id of
+         * the product that corresponds with this view holder and invokes the appropriate
+         * {@link #listener} callback with that id.
+         *
+         * @param view View being clicked.
+         */
+        @Override
+        public void onClick(View view) {
+            int position = getAdapterPosition();
+            cursor.moveToPosition(position);
+            int idColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry._ID);
+            int id = cursor.getInt(idColumnIndex);
+
+            if (view == itemView) {
+                listener.onItemClick(id);
+            } else if (view == decrementButton) {
+                listener.onDecrementButtonClick(id);
+            } else if (view == incrementButton) {
+                listener.onIncrementButtonClick(id);
+            }
         }
 
         public TextView getNameTextView() {
