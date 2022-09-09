@@ -2,9 +2,12 @@
     <string name="app_name">Clothes Catalog</string>
     <string name="insert_failed_message">Insertion failed</string>
     <string name="query_failed_message">Query failed</string>
+    <string name="update_failed_message">Update failed</string>
     <string name="delete_failed_message">Deletion failed</string>
     <string name="action_insert_dummy_label">Insert Dummy Row</string>
     <string name="action_delete_all_label">Delete All Rows</string>
     <string name="empty_list_primary_label">It\'s a bit lonely here…</string>
     <string name="empty_list_secondary_label">Get started by adding a product</string>
+    <string name="decrement_quantity_button_label">-</string>
+    <string name="increment_quantity_button_label">+</string>
 </resources>

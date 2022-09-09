@@ -9,6 +9,7 @@ import androidx.loader.content.Loader;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
@@ -26,7 +27,8 @@ import java.util.Random;
 /**
  * Provides a user interface for browsing a list of products queried from the product provider.
  */
-public class InventoryActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class InventoryActivity extends AppCompatActivity implements
+        LoaderManager.LoaderCallbacks<Cursor>, ProductCursorAdapter.ProductClickListener {
 
     /**
      * Adapts a {@link Cursor} of data from the product provider for a {@link RecyclerView}.
@@ -47,7 +49,7 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inventory);
-        productCursorAdapter = new ProductCursorAdapter();
+        productCursorAdapter = new ProductCursorAdapter(this);
         emptyListPrimaryTextView = findViewById(R.id.empty_list_primary_text_view);
         emptyListSecondaryTextView = findViewById(R.id.empty_list_secondary_text_view);
         RecyclerView recyclerView = findViewById(R.id.product_recycler_view);
@@ -151,6 +153,68 @@ public class InventoryActivity extends AppCompatActivity implements LoaderManage
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
         productCursorAdapter.setCursor(null);
         setEmptyListTextVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Invoked when a list item in the recycler view is clicked. Does nothing for now.
+     *
+     * @param id Id of the product corresponding with this list item.
+     */
+    @Override
+    public void onItemClick(int id) {
+        Toast.makeText(this, "onItemClick(" + id + ")", Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Invoked when the decrement button of a list item in the recycler view is clicked. It updates
+     * the appropriate product in the product provider with a quantity decremented by one.
+     *
+     * @param id       Id of the product corresponding with this list item.
+     * @param quantity Quantity of the product corresponding with this list item.
+     */
+    @Override
+    public void onDecrementButtonClick(int id, int quantity) {
+        // Perform update.
+        Uri uri = ContentUris.withAppendedId(ProductContract.ProductEntry.CONTENT_URI, id);
+        ContentValues values = new ContentValues();
+        values.put(ProductContract.ProductEntry.COLUMN_QUANTITY, quantity - 1);
+        int countRowsUpdated = getContentResolver().update(
+                uri,
+                values,
+                null,
+                null
+        );
+
+        if (countRowsUpdated == -1) {
+            // Update failed.
+            Toast.makeText(this, R.string.update_failed_message, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Invoked when the increment button of a list item in the recycler view is clicked. It updates
+     * the appropriate product in the product provider with a quantity incremented by one.
+     *
+     * @param id       Id of the product corresponding with this list item.
+     * @param quantity Quantity of the product corresponding with this list item.
+     */
+    @Override
+    public void onIncrementButtonClick(int id, int quantity) {
+        // Perform update.
+        Uri uri = ContentUris.withAppendedId(ProductContract.ProductEntry.CONTENT_URI, id);
+        ContentValues values = new ContentValues();
+        values.put(ProductContract.ProductEntry.COLUMN_QUANTITY, quantity + 1);
+        int countRowsUpdated = getContentResolver().update(
+                uri,
+                values,
+                null,
+                null
+        );
+
+        if (countRowsUpdated == -1) {
+            // Update failed.
+            Toast.makeText(this, R.string.update_failed_message, Toast.LENGTH_SHORT).show();
+        }
     }
 
     /**
