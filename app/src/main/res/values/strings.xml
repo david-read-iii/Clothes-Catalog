@@ -10,4 +10,5 @@
     <string name="empty_list_secondary_label">Get started by adding a product</string>
     <string name="decrement_quantity_button_label">-</string>
     <string name="increment_quantity_button_label">+</string>
+    <string name="add_product_button_content_description">Add a new product to the catalog</string>
 </resources>
