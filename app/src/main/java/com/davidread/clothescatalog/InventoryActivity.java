@@ -21,6 +21,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.davidread.clothescatalog.database.ProductContract;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Random;
 
@@ -28,7 +31,8 @@ import java.util.Random;
  * Provides a user interface for browsing a list of products queried from the product provider.
  */
 public class InventoryActivity extends AppCompatActivity implements
-        LoaderManager.LoaderCallbacks<Cursor>, ProductCursorAdapter.ProductClickListener {
+        LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener,
+        ProductCursorAdapter.ProductClickListener {
 
     /**
      * Adapts a {@link Cursor} of data from the product provider for a {@link RecyclerView}.
@@ -52,6 +56,8 @@ public class InventoryActivity extends AppCompatActivity implements
         productCursorAdapter = new ProductCursorAdapter(this);
         emptyListPrimaryTextView = findViewById(R.id.empty_list_primary_text_view);
         emptyListSecondaryTextView = findViewById(R.id.empty_list_secondary_text_view);
+        FloatingActionButton addProductButton = findViewById(R.id.add_product_button);
+        addProductButton.setOnClickListener(this);
         RecyclerView recyclerView = findViewById(R.id.product_recycler_view);
         recyclerView.setAdapter(productCursorAdapter);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
@@ -153,6 +159,21 @@ public class InventoryActivity extends AppCompatActivity implements
     public void onLoaderReset(@NonNull Loader<Cursor> loader) {
         productCursorAdapter.setCursor(null);
         setEmptyListTextVisibility(View.VISIBLE);
+    }
+
+    /**
+     * Invoked when the add product button is clicked. Does nothing for now.
+     *
+     * @param v The view that was clicked.
+     */
+    @Override
+    public void onClick(View v) {
+        View coordinatorLayout = (View) v.getParent();
+        Snackbar.make(
+                coordinatorLayout,
+                "Launch DetailActivity for adding a new product.",
+                BaseTransientBottomBar.LENGTH_SHORT
+        ).show();
     }
 
     /**

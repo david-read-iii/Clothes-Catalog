@@ -54,7 +54,7 @@
 
     <!-- Add product button. -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/add_product"
+        android:id="@+id/add_product_button"
         android:layout_width="@dimen/add_product_button_size"
         android:layout_height="@dimen/add_product_button_size"
         android:layout_gravity="bottom|end"
