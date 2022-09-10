@@ -3,6 +3,7 @@ package com.davidread.clothescatalog;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
@@ -18,9 +19,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.davidread.clothescatalog.database.ProductContract;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Random;
 
@@ -28,12 +31,18 @@ import java.util.Random;
  * Provides a user interface for browsing a list of products queried from the product provider.
  */
 public class InventoryActivity extends AppCompatActivity implements
-        LoaderManager.LoaderCallbacks<Cursor>, ProductCursorAdapter.ProductClickListener {
+        LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener,
+        ProductCursorAdapter.ProductClickListener {
 
     /**
      * Adapts a {@link Cursor} of data from the product provider for a {@link RecyclerView}.
      */
     private ProductCursorAdapter productCursorAdapter;
+
+    /**
+     * Root view of the layout for animating the add product button when a snackbar appears.
+     */
+    private CoordinatorLayout inventoryCoordinatorLayout;
 
     /**
      * Text shown in the UI when no data is available from the product provider.
@@ -50,8 +59,11 @@ public class InventoryActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inventory);
         productCursorAdapter = new ProductCursorAdapter(this);
+        inventoryCoordinatorLayout = findViewById(R.id.inventory_coordinator_layout);
         emptyListPrimaryTextView = findViewById(R.id.empty_list_primary_text_view);
         emptyListSecondaryTextView = findViewById(R.id.empty_list_secondary_text_view);
+        FloatingActionButton addProductButton = findViewById(R.id.add_product_button);
+        addProductButton.setOnClickListener(this);
         RecyclerView recyclerView = findViewById(R.id.product_recycler_view);
         recyclerView.setAdapter(productCursorAdapter);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(
@@ -84,11 +96,11 @@ public class InventoryActivity extends AppCompatActivity implements
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_insert_dummy) {
+        if (id == R.id.action_add_dummy_product) {
             // Insert a dummy row.
             insertRow();
             return true;
-        } else if (id == R.id.action_delete_all) {
+        } else if (id == R.id.action_delete_all_products) {
             // Delete all rows.
             deleteAllRows();
             return true;
@@ -156,18 +168,35 @@ public class InventoryActivity extends AppCompatActivity implements
     }
 
     /**
+     * Invoked when the add product button is clicked. Does nothing for now.
+     */
+    @Override
+    public void onClick(View v) {
+        Snackbar.make(
+                inventoryCoordinatorLayout,
+                "Launch DetailActivity for adding a new product.",
+                BaseTransientBottomBar.LENGTH_SHORT
+        ).show();
+    }
+
+    /**
      * Invoked when a list item in the recycler view is clicked. Does nothing for now.
      *
      * @param id Id of the product corresponding with this list item.
      */
     @Override
     public void onItemClick(int id) {
-        Toast.makeText(this, "onItemClick(" + id + ")", Toast.LENGTH_SHORT).show();
+        Snackbar.make(
+                inventoryCoordinatorLayout,
+                "Launch DetailActivity for modifying the product with id=" + id + ".",
+                BaseTransientBottomBar.LENGTH_SHORT
+        ).show();
     }
 
     /**
      * Invoked when the decrement button of a list item in the recycler view is clicked. It updates
-     * the appropriate product in the product provider with a quantity decremented by one.
+     * the appropriate product in the product provider with a quantity decremented by one. If the
+     * update operation fails, an error snackbar is shown.
      *
      * @param id       Id of the product corresponding with this list item.
      * @param quantity Quantity of the product corresponding with this list item.
@@ -178,22 +207,22 @@ public class InventoryActivity extends AppCompatActivity implements
         Uri uri = ContentUris.withAppendedId(ProductContract.ProductEntry.CONTENT_URI, id);
         ContentValues values = new ContentValues();
         values.put(ProductContract.ProductEntry.COLUMN_QUANTITY, quantity - 1);
-        int countRowsUpdated = getContentResolver().update(
-                uri,
-                values,
-                null,
-                null
-        );
+        int countRowsUpdated = getContentResolver().update(uri, values, null, null);
 
         if (countRowsUpdated == -1) {
             // Update failed.
-            Toast.makeText(this, R.string.update_failed_message, Toast.LENGTH_SHORT).show();
+            Snackbar.make(
+                    inventoryCoordinatorLayout,
+                    R.string.update_product_failed_message,
+                    BaseTransientBottomBar.LENGTH_SHORT
+            ).show();
         }
     }
 
     /**
      * Invoked when the increment button of a list item in the recycler view is clicked. It updates
-     * the appropriate product in the product provider with a quantity incremented by one.
+     * the appropriate product in the product provider with a quantity incremented by one. If the
+     * update operation fails, an error snackbar is shown.
      *
      * @param id       Id of the product corresponding with this list item.
      * @param quantity Quantity of the product corresponding with this list item.
@@ -204,22 +233,21 @@ public class InventoryActivity extends AppCompatActivity implements
         Uri uri = ContentUris.withAppendedId(ProductContract.ProductEntry.CONTENT_URI, id);
         ContentValues values = new ContentValues();
         values.put(ProductContract.ProductEntry.COLUMN_QUANTITY, quantity + 1);
-        int countRowsUpdated = getContentResolver().update(
-                uri,
-                values,
-                null,
-                null
-        );
+        int countRowsUpdated = getContentResolver().update(uri, values, null, null);
 
         if (countRowsUpdated == -1) {
             // Update failed.
-            Toast.makeText(this, R.string.update_failed_message, Toast.LENGTH_SHORT).show();
+            Snackbar.make(
+                    inventoryCoordinatorLayout,
+                    R.string.update_product_failed_message,
+                    BaseTransientBottomBar.LENGTH_SHORT
+            ).show();
         }
     }
 
     /**
      * Inserts a row of dummy data into the product provider. If the insertion operation fails, an
-     * error toast is shown.
+     * error snackbar is shown.
      */
     private void insertRow() {
         // Perform insertion.
@@ -229,7 +257,11 @@ public class InventoryActivity extends AppCompatActivity implements
         );
         if (insertUri == null) {
             // Insertion failed.
-            Toast.makeText(this, R.string.insert_failed_message, Toast.LENGTH_SHORT).show();
+            Snackbar.make(
+                    inventoryCoordinatorLayout,
+                    R.string.add_product_failed_message,
+                    BaseTransientBottomBar.LENGTH_SHORT
+            ).show();
         }
     }
 
@@ -266,7 +298,7 @@ public class InventoryActivity extends AppCompatActivity implements
 
     /**
      * Deletes all data from the product provider. If the deletion operation fails, it shows an
-     * error toast is shown.
+     * error snackbar is shown.
      */
     private void deleteAllRows() {
         // Perform deletion.
@@ -277,7 +309,11 @@ public class InventoryActivity extends AppCompatActivity implements
         );
         if (countRowsDeleted == -1) {
             // Deletion failed.
-            Toast.makeText(this, R.string.delete_failed_message, Toast.LENGTH_SHORT).show();
+            Snackbar.make(
+                    inventoryCoordinatorLayout,
+                    R.string.delete_product_failed_message,
+                    BaseTransientBottomBar.LENGTH_SHORT
+            ).show();
         }
     }
 
