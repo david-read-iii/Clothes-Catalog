@@ -96,11 +96,11 @@ public class InventoryActivity extends AppCompatActivity implements
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_insert_dummy) {
+        if (id == R.id.action_add_dummy_product) {
             // Insert a dummy row.
             insertRow();
             return true;
-        } else if (id == R.id.action_delete_all) {
+        } else if (id == R.id.action_delete_all_products) {
             // Delete all rows.
             deleteAllRows();
             return true;
@@ -213,7 +213,7 @@ public class InventoryActivity extends AppCompatActivity implements
             // Update failed.
             Snackbar.make(
                     inventoryCoordinatorLayout,
-                    R.string.update_failed_message,
+                    R.string.update_product_failed_message,
                     BaseTransientBottomBar.LENGTH_SHORT
             ).show();
         }
@@ -239,7 +239,7 @@ public class InventoryActivity extends AppCompatActivity implements
             // Update failed.
             Snackbar.make(
                     inventoryCoordinatorLayout,
-                    R.string.update_failed_message,
+                    R.string.update_product_failed_message,
                     BaseTransientBottomBar.LENGTH_SHORT
             ).show();
         }
@@ -259,7 +259,7 @@ public class InventoryActivity extends AppCompatActivity implements
             // Insertion failed.
             Snackbar.make(
                     inventoryCoordinatorLayout,
-                    R.string.insert_failed_message,
+                    R.string.add_product_failed_message,
                     BaseTransientBottomBar.LENGTH_SHORT
             ).show();
         }
@@ -311,7 +311,7 @@ public class InventoryActivity extends AppCompatActivity implements
             // Deletion failed.
             Snackbar.make(
                     inventoryCoordinatorLayout,
-                    R.string.delete_failed_message,
+                    R.string.delete_product_failed_message,
                     BaseTransientBottomBar.LENGTH_SHORT
             ).show();
         }
