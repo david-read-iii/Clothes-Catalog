@@ -21,4 +21,17 @@
         <item name="titleTextColor">?attr/colorOnPrimary</item>
     </style>
 
+    <!-- Primary TextView style. -->
+    <style name="PrimaryTextViewStyle" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textAppearance">?android:attr/textAppearanceListItem</item>
+    </style>
+
+    <!-- Secondary TextView style. -->
+    <style name="SecondaryTextViewStyle" parent="Widget.MaterialComponents.TextView">
+        <item name="android:textAppearance">?android:attr/textAppearanceListItemSecondary</item>
+    </style>
+
+    <!-- Secondary Button style. -->
+    <style name="SecondaryButtonStyle" parent="Widget.MaterialComponents.Button.TextButton" />
+
 </resources>

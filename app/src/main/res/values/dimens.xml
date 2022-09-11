@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="generic_activity_margin">16dp</dimen>
+    <dimen name="product_recycler_view_bottom_margin">88dp</dimen>
+    <dimen name="add_product_button_size">56dp</dimen>
+    <dimen name="add_product_button_margin">16dp</dimen>
+    <dimen name="list_item_margin">16dp</dimen>
+    <dimen name="list_item_horizontal_margin">8dp</dimen>
+    <dimen name="quantity_button_size">48dp</dimen>
 </resources>
