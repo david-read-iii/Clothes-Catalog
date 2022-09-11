@@ -203,6 +203,11 @@ public class InventoryActivity extends AppCompatActivity implements
      */
     @Override
     public void onDecrementButtonClick(long id, int quantity) {
+        // Do not allow decrements below 0.
+        if (quantity <= 0) {
+            return;
+        }
+
         // Perform update.
         Uri uri = ContentUris.withAppendedId(ProductContract.ProductEntry.CONTENT_URI, id);
         ContentValues values = new ContentValues();
