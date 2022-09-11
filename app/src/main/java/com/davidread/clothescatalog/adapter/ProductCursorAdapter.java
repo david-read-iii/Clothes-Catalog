@@ -1,4 +1,4 @@
-package com.davidread.clothescatalog;
+package com.davidread.clothescatalog.adapter;
 
 import android.database.Cursor;
 import android.view.LayoutInflater;
@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.davidread.clothescatalog.R;
 import com.davidread.clothescatalog.database.ProductContract;
 
 /**

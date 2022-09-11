@@ -1,4 +1,4 @@
-package com.davidread.clothescatalog;
+package com.davidread.clothescatalog.view;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,7 +20,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import com.davidread.clothescatalog.adapter.ProductCursorAdapter;
+import com.davidread.clothescatalog.R;
 import com.davidread.clothescatalog.database.ProductContract;
+import com.davidread.clothescatalog.util.DummyConstants;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
