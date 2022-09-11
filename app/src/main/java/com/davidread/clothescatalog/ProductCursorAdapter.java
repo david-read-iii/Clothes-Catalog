@@ -30,6 +30,11 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
     private Cursor cursor;
 
     /**
+     * Id column index for retrieving ids from {@link #cursor}.
+     */
+    private int idColumnIndex;
+
+    /**
      * Constructs a new adapter with a listener for handling clicks.
      *
      * @param listener Specifies what to do when a list item is clicked or when a list item button
@@ -106,7 +111,6 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
             return RecyclerView.NO_ID;
         } else {
             cursor.moveToPosition(position);
-            int idColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry._ID);
             return cursor.getLong(idColumnIndex);
         }
     }
@@ -119,6 +123,9 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
             cursor.close();
         }
         cursor = newCursor;
+        if (newCursor != null) {
+            idColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry._ID);
+        }
         notifyDataSetChanged();
     }
 
