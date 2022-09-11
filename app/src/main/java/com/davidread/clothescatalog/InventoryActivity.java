@@ -185,7 +185,7 @@ public class InventoryActivity extends AppCompatActivity implements
      * @param id Id of the product corresponding with this list item.
      */
     @Override
-    public void onItemClick(int id) {
+    public void onItemClick(long id) {
         Snackbar.make(
                 inventoryCoordinatorLayout,
                 "Launch DetailActivity for modifying the product with id=" + id + ".",
@@ -202,7 +202,7 @@ public class InventoryActivity extends AppCompatActivity implements
      * @param quantity Quantity of the product corresponding with this list item.
      */
     @Override
-    public void onDecrementButtonClick(int id, int quantity) {
+    public void onDecrementButtonClick(long id, int quantity) {
         // Perform update.
         Uri uri = ContentUris.withAppendedId(ProductContract.ProductEntry.CONTENT_URI, id);
         ContentValues values = new ContentValues();
@@ -228,7 +228,7 @@ public class InventoryActivity extends AppCompatActivity implements
      * @param quantity Quantity of the product corresponding with this list item.
      */
     @Override
-    public void onIncrementButtonClick(int id, int quantity) {
+    public void onIncrementButtonClick(long id, int quantity) {
         // Perform update.
         Uri uri = ContentUris.withAppendedId(ProductContract.ProductEntry.CONTENT_URI, id);
         ContentValues values = new ContentValues();
