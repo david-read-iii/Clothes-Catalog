@@ -37,6 +37,7 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
      */
     public ProductCursorAdapter(@NonNull ProductClickListener listener) {
         this.listener = listener;
+        setHasStableIds(true);
     }
 
     /**
@@ -93,6 +94,24 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
     }
 
     /**
+     * Returns the id of the item at the given position.
+     *
+     * @param position Position of the item in the adapter.
+     * @return The id of the item. {@link RecyclerView#NO_ID} if no id exists for the given
+     * position.
+     */
+    @Override
+    public long getItemId(int position) {
+        if (cursor == null || position < 0 || position >= getItemCount()) {
+            return RecyclerView.NO_ID;
+        } else {
+            cursor.moveToPosition(position);
+            int idColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry._ID);
+            return cursor.getLong(idColumnIndex);
+        }
+    }
+
+    /**
      * Set a new {@link Cursor} to adapt.
      */
     public void setCursor(@Nullable Cursor newCursor) {
@@ -104,13 +123,33 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
     }
 
     /**
+     * Returns the {@link Cursor} being adapted pointing at the given position.
+     *
+     * @param position Position of the item in the adapter.
+     * @return {@link Cursor} moved to the given position. {@code null} if no {@link Cursor} is
+     * being adapted or if the given position is out of bounds.
+     */
+    @Nullable
+    public Cursor getItem(int position) {
+        boolean isMoveSuccessful = false;
+        if (cursor != null) {
+            isMoveSuccessful = cursor.moveToPosition(position);
+        }
+        if (isMoveSuccessful) {
+            return cursor;
+        } else {
+            return null;
+        }
+    }
+
+    /**
      * Interface definition for a callback to be invoked when a list item is clicked or when the
      * buttons inside of the list item are clicked.
      */
     public interface ProductClickListener {
-        void onItemClick(int id);
-        void onDecrementButtonClick(int id, int quantity);
-        void onIncrementButtonClick(int id, int quantity);
+        void onItemClick(long id);
+        void onDecrementButtonClick(long id, int quantity);
+        void onIncrementButtonClick(long id, int quantity);
     }
 
     /**
@@ -167,11 +206,11 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
         @Override
         public void onClick(View view) {
             if (view == itemView) {
-                listener.onItemClick(getId());
+                listener.onItemClick(getItemId());
             } else if (view == decrementButton) {
-                listener.onDecrementButtonClick(getId(), getQuantity());
+                listener.onDecrementButtonClick(getItemId(), getQuantity());
             } else if (view == incrementButton) {
-                listener.onIncrementButtonClick(getId(), getQuantity());
+                listener.onIncrementButtonClick(getItemId(), getQuantity());
             }
         }
 
@@ -188,25 +227,13 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
         }
 
         /**
-         * Returns the id of the product that corresponds with this view holder.
-         *
-         * @return Id corresponding with this view holder.
-         */
-        private int getId() {
-            int position = getAdapterPosition();
-            cursor.moveToPosition(position);
-            int idColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry._ID);
-            return cursor.getInt(idColumnIndex);
-        }
-
-        /**
          * Returns the quantity of the product that corresponds with this view holder.
          *
          * @return Quantity corresponding with this view holder.
          */
         private int getQuantity() {
-            int position = getAdapterPosition();
-            cursor.moveToPosition(position);
+            Cursor cursor = getItem(getAdapterPosition());
+            assert cursor != null;
             int quantityColumnIndex = cursor.getColumnIndex(
                     ProductContract.ProductEntry.COLUMN_QUANTITY
             );
