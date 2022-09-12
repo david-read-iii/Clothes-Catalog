@@ -2,6 +2,11 @@
 
     <string name="app_name">Clothes Catalog</string>
 
+    <!-- Action bar titles. -->
+    <string name="inventory_action_bar_title">Inventory</string>
+    <string name="add_product_title">Add a new product</string>
+    <string name="update_product_title">Update a product</string>
+
     <!-- Snackbar messages. -->
     <string name="add_product_failed_message">Failed to add a new product</string>
     <string name="update_product_failed_message">Failed to update this product</string>

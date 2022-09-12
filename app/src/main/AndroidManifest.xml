@@ -23,6 +23,14 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".view.DetailActivity"
+            android:parentActivityName=".view.InventoryActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".view.DetailActivity" />
+        </activity>
+
         <provider
             android:name=".database.ProductProvider"
             android:authorities="com.davidread.clothescatalog"

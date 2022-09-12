@@ -120,7 +120,7 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
      * Set a new {@link Cursor} to adapt.
      */
     public void setCursor(@Nullable Cursor newCursor) {
-        if (cursor != null) {
+        if (cursor != null && newCursor != cursor) {
             cursor.close();
         }
         cursor = newCursor;

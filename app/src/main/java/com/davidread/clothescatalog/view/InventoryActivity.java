@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -61,6 +62,7 @@ public class InventoryActivity extends AppCompatActivity implements
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inventory);
+        setTitle(R.string.inventory_action_bar_title);
         productCursorAdapter = new ProductCursorAdapter(this);
         inventoryCoordinatorLayout = findViewById(R.id.inventory_coordinator_layout);
         emptyListPrimaryTextView = findViewById(R.id.empty_list_primary_text_view);
@@ -171,29 +173,28 @@ public class InventoryActivity extends AppCompatActivity implements
     }
 
     /**
-     * Invoked when the add product button is clicked. Does nothing for now.
+     * Invoked when the add product button is clicked. It launches the {@link DetailActivity}
+     * without passing any content URI.
      */
     @Override
     public void onClick(View v) {
-        Snackbar.make(
-                inventoryCoordinatorLayout,
-                "Launch DetailActivity for adding a new product.",
-                BaseTransientBottomBar.LENGTH_SHORT
-        ).show();
+        Intent intent = new Intent(this, DetailActivity.class);
+        startActivity(intent);
     }
 
     /**
-     * Invoked when a list item in the recycler view is clicked. Does nothing for now.
+     * Invoked when a list item in the recycler view is clicked. It launches the
+     * {@link DetailActivity} while passing the content URI that corresponds with the clicked
+     * list item.
      *
      * @param id Id of the product corresponding with this list item.
      */
     @Override
     public void onItemClick(long id) {
-        Snackbar.make(
-                inventoryCoordinatorLayout,
-                "Launch DetailActivity for modifying the product with id=" + id + ".",
-                BaseTransientBottomBar.LENGTH_SHORT
-        ).show();
+        Intent intent = new Intent(this, DetailActivity.class);
+        Uri uri = ContentUris.withAppendedId(ProductContract.ProductEntry.CONTENT_URI, id);
+        intent.setData(uri);
+        startActivity(intent);
     }
 
     /**
