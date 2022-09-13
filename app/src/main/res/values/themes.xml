@@ -34,4 +34,7 @@
     <!-- Secondary Button style. -->
     <style name="SecondaryButtonStyle" parent="Widget.MaterialComponents.Button.TextButton" />
 
+    <!-- TextInputLayout style. -->
+    <style name="TextInputLayoutStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox" />
+
 </resources>

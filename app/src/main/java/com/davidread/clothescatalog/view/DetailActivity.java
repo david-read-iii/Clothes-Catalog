@@ -4,13 +4,15 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 
 import com.davidread.clothescatalog.R;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 
 /**
  * Provides a user interface for viewing and editing a particular product. It is for a new product
@@ -42,8 +44,12 @@ public class DetailActivity extends AppCompatActivity {
             setTitle(R.string.update_product_title);
         }
 
-        TextView textView = findViewById(R.id.detail_text_view);
-        textView.setText("Launched DetailActivity with selectedProductUri=" + selectedProductUri);
+        CoordinatorLayout coordinatorLayout = findViewById(R.id.detail_coordinator_layout);
+        Snackbar.make(
+                coordinatorLayout,
+                "selectedProductUri=" + selectedProductUri,
+                BaseTransientBottomBar.LENGTH_SHORT
+        ).show();
     }
 
     /**

@@ -24,5 +24,13 @@
     <string name="decrement_quantity_button_label">-</string>
     <string name="increment_quantity_button_label">+</string>
     <string name="add_product_button_content_description">Add a new product to the catalog</string>
+    <string name="save_product_button_content_description">Save and close this product</string>
+
+    <!-- EditText hints. -->
+    <string name="name_hint">Name</string>
+    <string name="price_hint">Price</string>
+    <string name="quantity_hint">Quantity</string>
+    <string name="supplier_hint">Supplier</string>
+    <string name="picture_hint">Picture</string>
 
 </resources>
