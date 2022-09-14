@@ -15,9 +15,12 @@ import androidx.loader.content.Loader;
 
 import com.davidread.clothescatalog.R;
 import com.davidread.clothescatalog.database.ProductContract;
+import com.davidread.clothescatalog.util.RegexTextWatcher;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Arrays;
+import java.util.Random;
 
 /**
  * Provides a user interface for viewing and editing a particular product. It is for a new product
@@ -25,6 +28,14 @@ import java.util.Arrays;
  */
 public class DetailActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
+
+    /**
+     * Regular expressions that each text field should be matched with to be valid.
+     */
+    private static final String NAME_PATTERN = "^.{1,250}$";
+    private static final String PRICE_PATTERN = "^\\d{1,9}$";
+    private static final String QUANTITY_PATTERN = "^\\d{1,9}$";
+    private static final String SUPPLIER_PATTERN = "^.{1,250}$";
 
     /**
      * Content URI corresponds with the product being shown. If {@code null}, then a new product is
@@ -42,8 +53,8 @@ public class DetailActivity extends AppCompatActivity implements
     private TextInputEditText pictureTextInputEditText;
 
     /**
-     * Callback invoked to initialize the activity. Initializes member variables and initializes the
-     * simple layout for now.
+     * Callback invoked to initialize the activity. Initializes member variables, initializes the
+     * text fields, and puts the activity in either add product or update product mode.
      */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,9 +70,36 @@ public class DetailActivity extends AppCompatActivity implements
         supplierTextInputEditText = findViewById(R.id.supplier_text_input_edit_text);
         pictureTextInputEditText = findViewById(R.id.picture_text_input_edit_text);
 
+        TextInputLayout nameTextInputLayout = findViewById(R.id.name_text_input_layout);
+        nameTextInputEditText.addTextChangedListener(new RegexTextWatcher(
+                NAME_PATTERN,
+                getString(R.string.text_invalid_error_message),
+                nameTextInputLayout
+        ));
+        TextInputLayout priceTextInputLayout = findViewById(R.id.price_text_input_layout);
+        priceTextInputEditText.addTextChangedListener(new RegexTextWatcher(
+                PRICE_PATTERN,
+                getString(R.string.number_invalid_error_message),
+                priceTextInputLayout
+        ));
+        TextInputLayout quantityTextInputLayout = findViewById(R.id.quantity_text_input_layout);
+        quantityTextInputEditText.addTextChangedListener(new RegexTextWatcher(
+                QUANTITY_PATTERN,
+                getString(R.string.number_invalid_error_message),
+                quantityTextInputLayout
+        ));
+        TextInputLayout supplierTextInputLayout = findViewById(R.id.supplier_text_input_layout);
+        supplierTextInputEditText.addTextChangedListener(new RegexTextWatcher(
+                SUPPLIER_PATTERN,
+                getString(R.string.text_invalid_error_message),
+                supplierTextInputLayout
+        ));
+        pictureTextInputEditText.setEnabled(false);
+
         if (selectedProductUri == null) {
             // Put UI in add product mode.
             setTitle(R.string.add_product_title);
+            pictureTextInputEditText.setText(Arrays.toString(getRandomPictureValue()));
         } else {
             // Put UI in update product mode.
             setTitle(R.string.update_product_title);
@@ -151,13 +189,6 @@ public class DetailActivity extends AppCompatActivity implements
         quantityTextInputEditText.setText(quantity);
         supplierTextInputEditText.setText(supplier);
         pictureTextInputEditText.setText(pictureString);
-
-        // TODO: Remove once save a product feature is implemented.
-        nameTextInputEditText.setEnabled(false);
-        priceTextInputEditText.setEnabled(false);
-        quantityTextInputEditText.setEnabled(false);
-        supplierTextInputEditText.setEnabled(false);
-        pictureTextInputEditText.setEnabled(false);
     }
 
     /**
@@ -173,5 +204,20 @@ public class DetailActivity extends AppCompatActivity implements
         quantityTextInputEditText.setText("");
         supplierTextInputEditText.setText("");
         pictureTextInputEditText.setText("");
+    }
+
+    /**
+     * Returns a dummy picture {@code byte[]} to insert into the product provider.
+     *
+     * @return A dummy picture {@code byte[]}.
+     */
+    private byte[] getRandomPictureValue() {
+        Random random = new Random(System.currentTimeMillis());
+        return new byte[]{
+                (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
+                (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
+                (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
+                (byte) (random.nextInt((127 - (-128)) + 1) + (-128))
+        };
     }
 }
