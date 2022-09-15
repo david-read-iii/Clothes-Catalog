@@ -1,14 +1,19 @@
 package com.davidread.clothescatalog.view;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
@@ -16,6 +21,9 @@ import androidx.loader.content.Loader;
 import com.davidread.clothescatalog.R;
 import com.davidread.clothescatalog.database.ProductContract;
 import com.davidread.clothescatalog.util.RegexTextWatcher;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -44,6 +52,11 @@ public class DetailActivity extends AppCompatActivity implements
     private Uri selectedProductUri;
 
     /**
+     * Root view of the layout for animating the save product button when a snackbar appears.
+     */
+    private CoordinatorLayout detailCoordinatorLayout;
+
+    /**
      * Text fields displaying the value of each product property in the layout.
      */
     private TextInputEditText nameTextInputEditText;
@@ -64,6 +77,7 @@ public class DetailActivity extends AppCompatActivity implements
         Intent intent = getIntent();
         selectedProductUri = intent.getData();
 
+        detailCoordinatorLayout = findViewById(R.id.detail_coordinator_layout);
         nameTextInputEditText = findViewById(R.id.name_text_input_edit_text);
         priceTextInputEditText = findViewById(R.id.price_text_input_edit_text);
         quantityTextInputEditText = findViewById(R.id.quantity_text_input_edit_text);
@@ -95,6 +109,9 @@ public class DetailActivity extends AppCompatActivity implements
                 supplierTextInputLayout
         ));
         pictureTextInputEditText.setEnabled(false);
+
+        FloatingActionButton saveProductButton = findViewById(R.id.save_product_button);
+        saveProductButton.setOnClickListener(this::onSaveProductButtonClick);
 
         if (selectedProductUri == null) {
             // Put UI in add product mode.
@@ -207,6 +224,94 @@ public class DetailActivity extends AppCompatActivity implements
     }
 
     /**
+     * Invoked when the save product button is clicked. First, it validates the contents of the text
+     * fields. If an invalidation if found, a snackbar error is shown and execution stops. Then, it
+     * either adds a product or updates a product, depending on this activity's mode.
+     */
+    private void onSaveProductButtonClick(View view) {
+
+        Editable nameEditable = nameTextInputEditText.getText();
+        Editable priceEditable = priceTextInputEditText.getText();
+        Editable quantityEditable = quantityTextInputEditText.getText();
+        Editable supplierEditable = supplierTextInputEditText.getText();
+        Editable pictureEditable = pictureTextInputEditText.getText();
+
+        if (nameEditable == null || priceEditable == null || quantityEditable == null
+                || supplierEditable == null || pictureEditable == null) {
+            // One or more Editable is null.
+            showSnackbar(R.string.fill_form_message);
+            return;
+        }
+
+        String name = nameEditable.toString();
+        String priceString = priceEditable.toString();
+        String quantityString = quantityEditable.toString();
+        String supplier = supplierEditable.toString();
+        String pictureString = pictureEditable.toString();
+
+        if (name.isEmpty() || priceString.isEmpty() || quantityString.isEmpty()
+                || supplier.isEmpty()) {
+            // One or more text field is empty.
+            showSnackbar(R.string.fill_form_message);
+            return;
+        }
+
+        if (!name.matches(NAME_PATTERN) || !priceString.matches(PRICE_PATTERN)
+                || !quantityString.matches(QUANTITY_PATTERN) || !supplier.matches(SUPPLIER_PATTERN)) {
+            // One or more text field does not match their expected pattern.
+            showSnackbar(R.string.check_form_for_errors_message);
+            return;
+        }
+
+        int price = Integer.parseInt(priceString);
+        int quantity = Integer.parseInt(quantityString);
+        byte[] picture = parseStringToBytes(pictureString);
+
+        ContentValues values = new ContentValues();
+        values.put(ProductContract.ProductEntry.COLUMN_NAME, name);
+        values.put(ProductContract.ProductEntry.COLUMN_PRICE, price);
+        values.put(ProductContract.ProductEntry.COLUMN_QUANTITY, quantity);
+        values.put(ProductContract.ProductEntry.COLUMN_SUPPLIER, supplier);
+        values.put(ProductContract.ProductEntry.COLUMN_PICTURE, picture);
+
+        if (selectedProductUri == null) {
+            // Add a product.
+            Uri insertUri = getContentResolver().insert(
+                    ProductContract.ProductEntry.CONTENT_URI,
+                    values
+            );
+            if (insertUri == null) {
+                // Insert operation failed.
+                showSnackbar(R.string.add_product_failed_message);
+                return;
+            }
+        } else {
+            // Update a product.
+            int countRowsUpdated = getContentResolver().update(
+                    selectedProductUri,
+                    values,
+                    null,
+                    null
+            );
+            if (countRowsUpdated == -1) {
+                // Update operation failed.
+                showSnackbar(R.string.update_product_failed_message);
+                return;
+            }
+        }
+        finish();
+    }
+
+    /**
+     * Shows a snackbar in the UI with the given message.
+     *
+     * @param resId String resource id for the message.
+     */
+    private void showSnackbar(@StringRes int resId) {
+        Snackbar.make(detailCoordinatorLayout, resId, BaseTransientBottomBar.LENGTH_SHORT).show();
+    }
+
+    /**
      * Returns a dummy picture {@code byte[]} to insert into the product provider.
      *
      * @return A dummy picture {@code byte[]}.
@@ -219,5 +324,24 @@ public class DetailActivity extends AppCompatActivity implements
                 (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
                 (byte) (random.nextInt((127 - (-128)) + 1) + (-128))
         };
+    }
+
+    /**
+     * Parses the string representation of a {@code byte[]} into a {@code byte[]}.
+     *
+     * @param string String representation of a {@code byte[]}.
+     * @return {@code byte[]} parsed from the string.
+     */
+    private byte[] parseStringToBytes(String string) throws NumberFormatException {
+        string = string.replace(" ", "");
+        string = string.replace("[", "");
+        string = string.replace("]", "");
+        String[] byteStrings = string.split(",");
+
+        byte[] bytes = new byte[byteStrings.length];
+        for (int i = 0; i < byteStrings.length; i++) {
+            bytes[i] = Byte.parseByte(byteStrings[i]);
+        }
+        return bytes;
     }
 }
