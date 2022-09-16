@@ -1,4 +1,4 @@
-package com.davidread.clothescatalog;
+package com.davidread.clothescatalog.adapter;
 
 import android.database.Cursor;
 import android.view.LayoutInflater;
@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.davidread.clothescatalog.R;
 import com.davidread.clothescatalog.database.ProductContract;
 
 /**
@@ -119,7 +120,7 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
      * Set a new {@link Cursor} to adapt.
      */
     public void setCursor(@Nullable Cursor newCursor) {
-        if (cursor != null) {
+        if (cursor != null && newCursor != cursor) {
             cursor.close();
         }
         cursor = newCursor;

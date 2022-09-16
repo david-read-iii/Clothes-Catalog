@@ -1,4 +1,4 @@
-package com.davidread.clothescatalog;
+package com.davidread.clothescatalog.util;
 
 /**
  * A class that defines dummy constants to put into the product provider.
