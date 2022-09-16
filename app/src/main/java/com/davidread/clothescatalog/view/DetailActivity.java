@@ -119,6 +119,7 @@ public class DetailActivity extends AppCompatActivity implements
 
         FloatingActionButton saveProductButton = findViewById(R.id.save_product_button);
         saveProductButton.setOnClickListener(this::onSaveProductButtonClick);
+        TooltipCompat.setTooltipText(saveProductButton, getString(R.string.save_product_button_tooltip));
 
         if (selectedProductUri == null) {
             // Put UI in add product mode.
