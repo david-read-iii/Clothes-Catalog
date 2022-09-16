@@ -23,9 +23,13 @@
     <string name="empty_list_secondary_label">Get started by adding a product</string>
 
     <!-- Button labels and strings. -->
-    <string name="decrement_quantity_button_label">-</string>
-    <string name="increment_quantity_button_label">+</string>
     <string name="add_product_button_content_description">Add a new product to the catalog</string>
+    <string name="decrement_quantity_button_label">-</string>
+    <string name="decrement_quantity_button_tooltip">Decrement quantity</string>
+    <string name="decrement_quantity_button_content_description">Decrement quantity</string>
+    <string name="increment_quantity_button_label">+</string>
+    <string name="increment_quantity_button_tooltip">Increment quantity</string>
+    <string name="increment_quantity_button_content_description">Increment quantity</string>
     <string name="save_product_button_content_description">Save and close this product</string>
 
     <!-- EditText hints. -->

@@ -8,11 +8,13 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.TooltipCompat;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
@@ -109,6 +111,11 @@ public class DetailActivity extends AppCompatActivity implements
                 supplierTextInputLayout
         ));
         pictureTextInputEditText.setEnabled(false);
+
+        Button decrementQuantityButton = findViewById(R.id.decrement_quantity_button);
+        TooltipCompat.setTooltipText(decrementQuantityButton, getString(R.string.decrement_quantity_button_tooltip));
+        Button incrementQuantityButton = findViewById(R.id.increment_quantity_button);
+        TooltipCompat.setTooltipText(incrementQuantityButton, getString(R.string.increment_quantity_button_tooltip));
 
         FloatingActionButton saveProductButton = findViewById(R.id.save_product_button);
         saveProductButton.setOnClickListener(this::onSaveProductButtonClick);
