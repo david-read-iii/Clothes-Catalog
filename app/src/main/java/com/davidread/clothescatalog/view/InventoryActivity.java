@@ -104,12 +104,10 @@ public class InventoryActivity extends AppCompatActivity implements
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_add_dummy_product) {
-            // Insert a dummy row.
-            insertRow();
+            onAddDummyProductClick();
             return true;
         } else if (id == R.id.action_delete_all_products) {
-            // Delete all rows.
-            deleteAllRows();
+            onDeleteAllProductsClick();
             return true;
         } else {
             // Superclass will handle all other clicks.
@@ -218,6 +216,39 @@ public class InventoryActivity extends AppCompatActivity implements
     }
 
     /**
+     * Invoked when the add dummy product button in the action bar is clicked. It adds a product
+     * with dummy data to the product provider. If the insertion operation fails, it shows an error
+     * snackbar.
+     */
+    private void onAddDummyProductClick() {
+        Uri insertUri = getContentResolver().insert(
+                ProductContract.ProductEntry.CONTENT_URI,
+                getRandomContentValues()
+        );
+        if (insertUri == null) {
+            // Insertion failed.
+            showSnackbar(R.string.add_product_failed_message);
+        }
+    }
+
+    /**
+     * Invoked when the delete all products button in the action bar is clicked. It deletes all
+     * products from the product provider. If the deletion operation fails, it shows an error
+     * snackbar.
+     */
+    private void onDeleteAllProductsClick() {
+        int countRowsDeleted = getContentResolver().delete(
+                ProductContract.ProductEntry.CONTENT_URI,
+                null,
+                null
+        );
+        if (countRowsDeleted == -1) {
+            // Deletion failed.
+            showSnackbar(R.string.delete_all_products_failed_message);
+        }
+    }
+
+    /**
      * Invoked when the add product button is clicked. It launches the {@link DetailActivity}
      * without passing any content URI.
      */
@@ -234,22 +265,6 @@ public class InventoryActivity extends AppCompatActivity implements
     private void showSnackbar(@StringRes int resId) {
         Snackbar.make(inventoryCoordinatorLayout, resId, BaseTransientBottomBar.LENGTH_SHORT)
                 .show();
-    }
-
-    /**
-     * Inserts a row of dummy data into the product provider. If the insertion operation fails, an
-     * error snackbar is shown.
-     */
-    private void insertRow() {
-        // Perform insertion.
-        Uri insertUri = getContentResolver().insert(
-                ProductContract.ProductEntry.CONTENT_URI,
-                getRandomContentValues()
-        );
-        if (insertUri == null) {
-            // Insertion failed.
-            showSnackbar(R.string.add_product_failed_message);
-        }
     }
 
     /**
@@ -281,23 +296,6 @@ public class InventoryActivity extends AppCompatActivity implements
                 }
         );
         return values;
-    }
-
-    /**
-     * Deletes all data from the product provider. If the deletion operation fails, it shows an
-     * error snackbar is shown.
-     */
-    private void deleteAllRows() {
-        // Perform deletion.
-        int countRowsDeleted = getContentResolver().delete(
-                ProductContract.ProductEntry.CONTENT_URI,
-                null,
-                null
-        );
-        if (countRowsDeleted == -1) {
-            // Deletion failed.
-            showSnackbar(R.string.delete_all_products_failed_message);
-        }
     }
 
     /**
