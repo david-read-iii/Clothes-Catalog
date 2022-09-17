@@ -126,7 +126,7 @@ public class DetailActivity extends AppCompatActivity implements
         if (selectedProductUri == null) {
             // Put UI in add product mode.
             setTitle(R.string.add_product_title);
-            pictureTextInputEditText.setText(Arrays.toString(getRandomPictureValue()));
+            pictureTextInputEditText.setText(getRandomPictureValue());
         } else {
             // Put UI in update product mode.
             setTitle(R.string.update_product_title);
@@ -411,19 +411,21 @@ public class DetailActivity extends AppCompatActivity implements
     }
 
     /**
-     * Returns a dummy picture {@code byte[]} to insert into the product provider.
+     * Returns the string representation of a dummy picture {@code byte[]} to display in
+     * {@link #pictureTextInputEditText}.
      *
-     * @return A dummy picture {@code byte[]}.
+     * @return A dummy picture {@code byte[]} string representation.
      */
     @NonNull
-    private byte[] getRandomPictureValue() {
+    private String getRandomPictureValue() {
         Random random = new Random(System.currentTimeMillis());
-        return new byte[]{
+        byte[] byteArray = new byte[]{
                 (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
                 (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
                 (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
                 (byte) (random.nextInt((127 - (-128)) + 1) + (-128))
         };
+        return Arrays.toString(byteArray);
     }
 
     /**
