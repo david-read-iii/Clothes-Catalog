@@ -22,6 +22,8 @@
     <string name="empty_list_secondary_label">Get started by adding a product</string>
 
     <!-- Button labels and strings. -->
+    <string name="sale_button_label">Sale</string>
+    <string name="sale_button_content_description">Decrement this product\'s quantity by 1</string>
     <string name="add_product_button_tooltip">Add product</string>
     <string name="add_product_button_content_description">Add a new product to the catalog</string>
     <string name="decrement_quantity_button_label">-</string>
