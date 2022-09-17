@@ -11,8 +11,7 @@
     <string name="add_product_failed_message">Failed to add a new product</string>
     <string name="update_product_failed_message">Failed to update this product</string>
     <string name="delete_product_failed_message">Failed to delete this product</string>
-    <string name="fill_form_message">Fields cannot be empty</string>
-    <string name="check_form_for_errors_message">Check fields for errors</string>
+    <string name="check_form_message">Check form for empty fields or errors</string>
 
     <!-- Action bar labels. -->
     <string name="action_add_dummy_product_label">Add a dummy product</string>
@@ -23,9 +22,15 @@
     <string name="empty_list_secondary_label">Get started by adding a product</string>
 
     <!-- Button labels and strings. -->
-    <string name="decrement_quantity_button_label">-</string>
-    <string name="increment_quantity_button_label">+</string>
+    <string name="add_product_button_tooltip">Add product</string>
     <string name="add_product_button_content_description">Add a new product to the catalog</string>
+    <string name="decrement_quantity_button_label">-</string>
+    <string name="decrement_quantity_button_tooltip">Decrement quantity</string>
+    <string name="decrement_quantity_button_content_description">Decrement this product\'s quantity</string>
+    <string name="increment_quantity_button_label">+</string>
+    <string name="increment_quantity_button_tooltip">Increment quantity</string>
+    <string name="increment_quantity_button_content_description">Increment this product\s quantity</string>
+    <string name="save_product_button_tooltip">Save product</string>
     <string name="save_product_button_content_description">Save and close this product</string>
 
     <!-- EditText hints. -->

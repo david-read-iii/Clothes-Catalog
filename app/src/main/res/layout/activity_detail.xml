@@ -82,6 +82,26 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
+            <Button
+                android:id="@+id/decrement_quantity_button"
+                style="@style/SecondaryButtonStyle"
+                android:layout_width="@dimen/quantity_button_size"
+                android:layout_height="@dimen/quantity_button_size"
+                android:contentDescription="@string/decrement_quantity_button_content_description"
+                android:text="@string/decrement_quantity_button_label"
+                app:layout_constraintEnd_toStartOf="@id/increment_quantity_button"
+                app:layout_constraintTop_toBottomOf="@id/quantity_text_input_layout" />
+
+            <Button
+                android:id="@+id/increment_quantity_button"
+                style="@style/SecondaryButtonStyle"
+                android:layout_width="@dimen/quantity_button_size"
+                android:layout_height="@dimen/quantity_button_size"
+                android:contentDescription="@string/increment_quantity_button_content_description"
+                android:text="@string/increment_quantity_button_label"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/quantity_text_input_layout" />
+
             <!-- Supplier field. -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/supplier_text_input_layout"
@@ -91,7 +111,7 @@
                 android:layout_marginTop="@dimen/detail_edit_text_vertical_margin"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/quantity_text_input_layout"
+                app:layout_constraintTop_toBottomOf="@id/decrement_quantity_button"
                 app:startIconDrawable="@drawable/ic_supplier">
 
                 <com.google.android.material.textfield.TextInputEditText

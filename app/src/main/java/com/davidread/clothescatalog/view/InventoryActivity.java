@@ -3,6 +3,7 @@ package com.davidread.clothescatalog.view;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.TooltipCompat;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
@@ -69,6 +70,7 @@ public class InventoryActivity extends AppCompatActivity implements
         emptyListSecondaryTextView = findViewById(R.id.empty_list_secondary_text_view);
         FloatingActionButton addProductButton = findViewById(R.id.add_product_button);
         addProductButton.setOnClickListener(this);
+        TooltipCompat.setTooltipText(addProductButton, getString(R.string.add_product_button_tooltip));
         RecyclerView recyclerView = findViewById(R.id.product_recycler_view);
         recyclerView.setAdapter(productCursorAdapter);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(

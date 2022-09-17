@@ -8,11 +8,13 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.TooltipCompat;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
@@ -110,13 +112,21 @@ public class DetailActivity extends AppCompatActivity implements
         ));
         pictureTextInputEditText.setEnabled(false);
 
+        Button decrementQuantityButton = findViewById(R.id.decrement_quantity_button);
+        decrementQuantityButton.setOnClickListener(this::onDecrementQuantityButtonClick);
+        TooltipCompat.setTooltipText(decrementQuantityButton, getString(R.string.decrement_quantity_button_tooltip));
+        Button incrementQuantityButton = findViewById(R.id.increment_quantity_button);
+        incrementQuantityButton.setOnClickListener(this::onIncrementQuantityButtonClick);
+        TooltipCompat.setTooltipText(incrementQuantityButton, getString(R.string.increment_quantity_button_tooltip));
+
         FloatingActionButton saveProductButton = findViewById(R.id.save_product_button);
         saveProductButton.setOnClickListener(this::onSaveProductButtonClick);
+        TooltipCompat.setTooltipText(saveProductButton, getString(R.string.save_product_button_tooltip));
 
         if (selectedProductUri == null) {
             // Put UI in add product mode.
             setTitle(R.string.add_product_title);
-            pictureTextInputEditText.setText(Arrays.toString(getRandomPictureValue()));
+            pictureTextInputEditText.setText(getRandomPictureValue());
         } else {
             // Put UI in update product mode.
             setTitle(R.string.update_product_title);
@@ -224,48 +234,82 @@ public class DetailActivity extends AppCompatActivity implements
     }
 
     /**
+     * Invoked when the decrement button is clicked. It decrements the quantity of the value in
+     * {@link #quantityTextInputEditText} by 1 without letting the quantity fall below 0.
+     */
+    private void onDecrementQuantityButtonClick(View view) {
+        Integer quantity = extractValueFromEditText(
+                quantityTextInputEditText,
+                QUANTITY_PATTERN,
+                Integer.class
+        );
+        if (quantity == null || quantity <= 0) {
+            // No quantity was in the text field or the quantity cannot be decremented any further.
+            return;
+        }
+        quantity--;
+        String quantityString = Integer.toString(quantity);
+        quantityTextInputEditText.setText(quantityString);
+    }
+
+    /**
+     * Invoked when the increment button is clicked. It increments the quantity of the value in
+     * {@link #quantityTextInputEditText} by 1.
+     */
+    private void onIncrementQuantityButtonClick(View view) {
+        Integer quantity = extractValueFromEditText(
+                quantityTextInputEditText,
+                QUANTITY_PATTERN,
+                Integer.class
+        );
+        if (quantity == null) {
+            // No quantity was in the text field.
+            return;
+        }
+        quantity++;
+        String quantityString = Integer.toString(quantity);
+        quantityTextInputEditText.setText(quantityString);
+    }
+
+    /**
      * Invoked when the save product button is clicked. First, it validates the contents of the text
      * fields. If an invalidation if found, a snackbar error is shown and execution stops. Then, it
      * either adds a product or updates a product, depending on this activity's mode.
      */
     private void onSaveProductButtonClick(View view) {
 
-        Editable nameEditable = nameTextInputEditText.getText();
-        Editable priceEditable = priceTextInputEditText.getText();
-        Editable quantityEditable = quantityTextInputEditText.getText();
-        Editable supplierEditable = supplierTextInputEditText.getText();
-        Editable pictureEditable = pictureTextInputEditText.getText();
+        String name = extractValueFromEditText(
+                nameTextInputEditText,
+                NAME_PATTERN,
+                String.class
+        );
+        Integer price = extractValueFromEditText(
+                priceTextInputEditText,
+                PRICE_PATTERN,
+                Integer.class
+        );
+        Integer quantity = extractValueFromEditText(
+                quantityTextInputEditText,
+                QUANTITY_PATTERN,
+                Integer.class
+        );
+        String supplier = extractValueFromEditText(
+                supplierTextInputEditText,
+                SUPPLIER_PATTERN,
+                String.class
+        );
+        byte[] picture = extractValueFromEditText(
+                pictureTextInputEditText,
+                null,
+                byte[].class
+        );
 
-        if (nameEditable == null || priceEditable == null || quantityEditable == null
-                || supplierEditable == null || pictureEditable == null) {
-            // One or more Editable is null.
-            showSnackbar(R.string.fill_form_message);
+        if (name == null || price == null || quantity == null || supplier == null
+                || picture == null) {
+            // A value could not be extracted or the value did not match its regular expression.
+            showSnackbar(R.string.check_form_message);
             return;
         }
-
-        String name = nameEditable.toString();
-        String priceString = priceEditable.toString();
-        String quantityString = quantityEditable.toString();
-        String supplier = supplierEditable.toString();
-        String pictureString = pictureEditable.toString();
-
-        if (name.isEmpty() || priceString.isEmpty() || quantityString.isEmpty()
-                || supplier.isEmpty()) {
-            // One or more text field is empty.
-            showSnackbar(R.string.fill_form_message);
-            return;
-        }
-
-        if (!name.matches(NAME_PATTERN) || !priceString.matches(PRICE_PATTERN)
-                || !quantityString.matches(QUANTITY_PATTERN) || !supplier.matches(SUPPLIER_PATTERN)) {
-            // One or more text field does not match their expected pattern.
-            showSnackbar(R.string.check_form_for_errors_message);
-            return;
-        }
-
-        int price = Integer.parseInt(priceString);
-        int quantity = Integer.parseInt(quantityString);
-        byte[] picture = parseStringToBytes(pictureString);
 
         ContentValues values = new ContentValues();
         values.put(ProductContract.ProductEntry.COLUMN_NAME, name);
@@ -312,18 +356,76 @@ public class DetailActivity extends AppCompatActivity implements
     }
 
     /**
-     * Returns a dummy picture {@code byte[]} to insert into the product provider.
+     * Extracts the value from an edit text and returns it as some given class type. It will only
+     * return the value if the value matches some given regular expression and if no conversion
+     * errors occur. Otherwise, it will return {@code null}.
      *
-     * @return A dummy picture {@code byte[]}.
+     * @param editText    Edit text to extract from.
+     * @param pattern     Regular expression to match the extracted string to. {@code null} if no
+     *                    matching should be done.
+     * @param returnClass Class type to convert the extracted value to. Accepts only {@link String}
+     *                    and {@link Integer} so far.
+     * @param <T>         Class type to convert the extracted value to. Accepts only {@link String}
+     *                    and {@link Integer} so far.
+     * @return The value from the edit text. {@code null} if regular expression matching fails or
+     * if some conversion error occurs.
      */
-    private byte[] getRandomPictureValue() {
+    @Nullable
+    private <T> T extractValueFromEditText(
+            @NonNull TextInputEditText editText,
+            @Nullable String pattern,
+            @NonNull Class<T> returnClass
+    ) {
+        // Extract String from EditText.
+        Editable textEditable = editText.getText();
+        if (textEditable == null) {
+            return null;
+        }
+        String textString = textEditable.toString();
+        if (pattern != null && !textString.matches(pattern)) {
+            return null;
+        }
+        if (returnClass == String.class) {
+            // Return value as String.
+            return returnClass.cast(textString);
+        } else if (returnClass == Integer.class) {
+            try {
+                // Return value as Integer.
+                int textInteger = Integer.parseInt(textString);
+                return returnClass.cast(textInteger);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        } else if (returnClass == byte[].class) {
+            try {
+                // Return value as byte[].
+                byte[] textByteArray = parseStringToBytes(textString);
+                return returnClass.cast(textByteArray);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        } else {
+            // Unsupported return class.
+            return null;
+        }
+    }
+
+    /**
+     * Returns the string representation of a dummy picture {@code byte[]} to display in
+     * {@link #pictureTextInputEditText}.
+     *
+     * @return A dummy picture {@code byte[]} string representation.
+     */
+    @NonNull
+    private String getRandomPictureValue() {
         Random random = new Random(System.currentTimeMillis());
-        return new byte[]{
+        byte[] byteArray = new byte[]{
                 (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
                 (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
                 (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
                 (byte) (random.nextInt((127 - (-128)) + 1) + (-128))
         };
+        return Arrays.toString(byteArray);
     }
 
     /**
@@ -332,7 +434,8 @@ public class DetailActivity extends AppCompatActivity implements
      * @param string String representation of a {@code byte[]}.
      * @return {@code byte[]} parsed from the string.
      */
-    private byte[] parseStringToBytes(String string) throws NumberFormatException {
+    @NonNull
+    private byte[] parseStringToBytes(@NonNull String string) throws NumberFormatException {
         string = string.replace(" ", "");
         string = string.replace("[", "");
         string = string.replace("]", "");
