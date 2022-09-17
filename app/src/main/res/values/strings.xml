@@ -11,6 +11,7 @@
     <string name="add_product_failed_message">Failed to add a new product</string>
     <string name="update_product_failed_message">Failed to update this product</string>
     <string name="delete_product_failed_message">Failed to delete this product</string>
+    <string name="delete_all_products_failed_message">Failed to delete all products</string>
     <string name="check_form_message">Check form for empty fields or errors</string>
 
     <!-- Action bar labels. -->

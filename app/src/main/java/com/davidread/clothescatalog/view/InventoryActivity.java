@@ -296,7 +296,7 @@ public class InventoryActivity extends AppCompatActivity implements
         );
         if (countRowsDeleted == -1) {
             // Deletion failed.
-            showSnackbar(R.string.delete_product_failed_message);
+            showSnackbar(R.string.delete_all_products_failed_message);
         }
     }
 
