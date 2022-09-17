@@ -28,8 +28,8 @@
     <string name="decrement_quantity_button_tooltip">Decrement quantity</string>
     <string name="decrement_quantity_button_content_description">Decrement this product\'s quantity</string>
     <string name="increment_quantity_button_label">+</string>
-    <string name="increment_quantity_button_tooltip">Increment this product\s quantity</string>
-    <string name="increment_quantity_button_content_description">Increment quantity</string>
+    <string name="increment_quantity_button_tooltip">Increment quantity</string>
+    <string name="increment_quantity_button_content_description">Increment this product\s quantity</string>
     <string name="save_product_button_tooltip">Save product</string>
     <string name="save_product_button_content_description">Save and close this product</string>
 
