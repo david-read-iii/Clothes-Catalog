@@ -278,42 +278,38 @@ public class DetailActivity extends AppCompatActivity implements
      */
     private void onSaveProductButtonClick(View view) {
 
-        Editable nameEditable = nameTextInputEditText.getText();
-        Editable priceEditable = priceTextInputEditText.getText();
-        Editable quantityEditable = quantityTextInputEditText.getText();
-        Editable supplierEditable = supplierTextInputEditText.getText();
-        Editable pictureEditable = pictureTextInputEditText.getText();
+        String name = extractValueFromEditText(
+                nameTextInputEditText,
+                NAME_PATTERN,
+                String.class
+        );
+        Integer price = extractValueFromEditText(
+                priceTextInputEditText,
+                PRICE_PATTERN,
+                Integer.class
+        );
+        Integer quantity = extractValueFromEditText(
+                quantityTextInputEditText,
+                QUANTITY_PATTERN,
+                Integer.class
+        );
+        String supplier = extractValueFromEditText(
+                supplierTextInputEditText,
+                SUPPLIER_PATTERN,
+                String.class
+        );
+        byte[] picture = extractValueFromEditText(
+                pictureTextInputEditText,
+                null,
+                byte[].class
+        );
 
-        if (nameEditable == null || priceEditable == null || quantityEditable == null
-                || supplierEditable == null || pictureEditable == null) {
-            // One or more Editable is null.
-            showSnackbar(R.string.fill_form_message);
+        if (name == null || price == null || quantity == null || supplier == null
+                || picture == null) {
+            // A value could not be extracted or the value did not match its regular expression.
+            showSnackbar(R.string.check_form_message);
             return;
         }
-
-        String name = nameEditable.toString();
-        String priceString = priceEditable.toString();
-        String quantityString = quantityEditable.toString();
-        String supplier = supplierEditable.toString();
-        String pictureString = pictureEditable.toString();
-
-        if (name.isEmpty() || priceString.isEmpty() || quantityString.isEmpty()
-                || supplier.isEmpty()) {
-            // One or more text field is empty.
-            showSnackbar(R.string.fill_form_message);
-            return;
-        }
-
-        if (!name.matches(NAME_PATTERN) || !priceString.matches(PRICE_PATTERN)
-                || !quantityString.matches(QUANTITY_PATTERN) || !supplier.matches(SUPPLIER_PATTERN)) {
-            // One or more text field does not match their expected pattern.
-            showSnackbar(R.string.check_form_for_errors_message);
-            return;
-        }
-
-        int price = Integer.parseInt(priceString);
-        int quantity = Integer.parseInt(quantityString);
-        byte[] picture = parseStringToBytes(pictureString);
 
         ContentValues values = new ContentValues();
         values.put(ProductContract.ProductEntry.COLUMN_NAME, name);
@@ -365,7 +361,8 @@ public class DetailActivity extends AppCompatActivity implements
      * errors occur. Otherwise, it will return {@code null}.
      *
      * @param editText    Edit text to extract from.
-     * @param pattern     Regular expression to match the extracted string to.
+     * @param pattern     Regular expression to match the extracted string to. {@code null} if no
+     *                    matching should be done.
      * @param returnClass Class type to convert the extracted value to. Accepts only {@link String}
      *                    and {@link Integer} so far.
      * @param <T>         Class type to convert the extracted value to. Accepts only {@link String}
@@ -376,27 +373,39 @@ public class DetailActivity extends AppCompatActivity implements
     @Nullable
     private <T> T extractValueFromEditText(
             @NonNull TextInputEditText editText,
-            @NonNull String pattern,
+            @Nullable String pattern,
             @NonNull Class<T> returnClass
     ) {
+        // Extract String from EditText.
         Editable textEditable = editText.getText();
         if (textEditable == null) {
             return null;
         }
         String textString = textEditable.toString();
-        if (!textString.matches(pattern)) {
+        if (pattern != null && !textString.matches(pattern)) {
             return null;
         }
         if (returnClass == String.class) {
+            // Return value as String.
             return returnClass.cast(textString);
         } else if (returnClass == Integer.class) {
             try {
+                // Return value as Integer.
                 int textInteger = Integer.parseInt(textString);
                 return returnClass.cast(textInteger);
             } catch (NumberFormatException e) {
                 return null;
             }
+        } else if (returnClass == byte[].class) {
+            try {
+                // Return value as byte[].
+                byte[] textByteArray = parseStringToBytes(textString);
+                return returnClass.cast(textByteArray);
+            } catch (NumberFormatException e) {
+                return null;
+            }
         } else {
+            // Unsupported return class.
             return null;
         }
     }
@@ -406,6 +415,7 @@ public class DetailActivity extends AppCompatActivity implements
      *
      * @return A dummy picture {@code byte[]}.
      */
+    @NonNull
     private byte[] getRandomPictureValue() {
         Random random = new Random(System.currentTimeMillis());
         return new byte[]{
@@ -422,7 +432,8 @@ public class DetailActivity extends AppCompatActivity implements
      * @param string String representation of a {@code byte[]}.
      * @return {@code byte[]} parsed from the string.
      */
-    private byte[] parseStringToBytes(String string) throws NumberFormatException {
+    @NonNull
+    private byte[] parseStringToBytes(@NonNull String string) throws NumberFormatException {
         string = string.replace(" ", "");
         string = string.replace("[", "");
         string = string.replace("]", "");
