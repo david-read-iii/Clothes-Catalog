@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -132,6 +133,21 @@ public class DetailActivity extends AppCompatActivity implements
             setTitle(R.string.update_product_title);
             LoaderManager.getInstance(this).initLoader(0, null, this);
         }
+    }
+
+    /**
+     * Callback invoked to initialize the action bar. It inflates the action bar's layout.
+     *
+     * @param menu The options menu in which you place your items.
+     * @return True to show the menu. False to hide the menu.
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (selectedProductUri != null) {
+            // Only show if UI is in update product mode.
+            getMenuInflater().inflate(R.menu.menu_detail_update_product_mode, menu);
+        }
+        return true;
     }
 
     /**
