@@ -160,7 +160,10 @@ public class DetailActivity extends AppCompatActivity implements
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == android.R.id.home) {
+        if (id == R.id.action_delete_product) {
+            onDeleteProductButtonClick();
+            return true;
+        } else if (id == android.R.id.home) {
             // Mimic back press behavior for its back animation.
             onBackPressed();
             return true;
@@ -247,6 +250,21 @@ public class DetailActivity extends AppCompatActivity implements
         quantityTextInputEditText.setText("");
         supplierTextInputEditText.setText("");
         pictureTextInputEditText.setText("");
+    }
+
+    /**
+     * Invoked when the delete product button in the action bar is clicked. It deletes the product
+     * corresponding with this activity. If the deletion operation fails, it shows an error
+     * snackbar.
+     */
+    private void onDeleteProductButtonClick() {
+        int countRowsDeleted = getContentResolver().delete(selectedProductUri, null, null);
+        if (countRowsDeleted == -1) {
+            // Deletion failed.
+            showSnackbar(R.string.delete_product_failed_message);
+            return;
+        }
+        finish();
     }
 
     /**
