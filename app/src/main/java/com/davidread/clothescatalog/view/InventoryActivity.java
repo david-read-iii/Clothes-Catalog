@@ -36,8 +36,7 @@ import java.util.Random;
  * Provides a user interface for browsing a list of products queried from the product provider.
  */
 public class InventoryActivity extends AppCompatActivity implements
-        LoaderManager.LoaderCallbacks<Cursor>, View.OnClickListener,
-        ProductCursorAdapter.ProductClickListener {
+        LoaderManager.LoaderCallbacks<Cursor>, ProductCursorAdapter.ProductClickListener {
 
     /**
      * Adapts a {@link Cursor} of data from the product provider for a {@link RecyclerView}.
@@ -69,7 +68,7 @@ public class InventoryActivity extends AppCompatActivity implements
         emptyListPrimaryTextView = findViewById(R.id.empty_list_primary_text_view);
         emptyListSecondaryTextView = findViewById(R.id.empty_list_secondary_text_view);
         FloatingActionButton addProductButton = findViewById(R.id.add_product_button);
-        addProductButton.setOnClickListener(this);
+        addProductButton.setOnClickListener(this::onAddProductButtonClick);
         TooltipCompat.setTooltipText(addProductButton, getString(R.string.add_product_button_tooltip));
         RecyclerView recyclerView = findViewById(R.id.product_recycler_view);
         recyclerView.setAdapter(productCursorAdapter);
@@ -174,15 +173,6 @@ public class InventoryActivity extends AppCompatActivity implements
         setEmptyListTextVisibility(View.VISIBLE);
     }
 
-    /**
-     * Invoked when the add product button is clicked. It launches the {@link DetailActivity}
-     * without passing any content URI.
-     */
-    @Override
-    public void onClick(View v) {
-        Intent intent = new Intent(this, DetailActivity.class);
-        startActivity(intent);
-    }
 
     /**
      * Invoked when a list item in the recycler view is clicked. It launches the
@@ -228,6 +218,15 @@ public class InventoryActivity extends AppCompatActivity implements
                     BaseTransientBottomBar.LENGTH_SHORT
             ).show();
         }
+    }
+
+    /**
+     * Invoked when the add product button is clicked. It launches the {@link DetailActivity}
+     * without passing any content URI.
+     */
+    private void onAddProductButtonClick(View view) {
+        Intent intent = new Intent(this, DetailActivity.class);
+        startActivity(intent);
     }
 
     /**
