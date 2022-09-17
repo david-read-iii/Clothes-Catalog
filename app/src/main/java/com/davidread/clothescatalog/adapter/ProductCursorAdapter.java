@@ -152,12 +152,11 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
 
     /**
      * Interface definition for a callback to be invoked when a list item is clicked or when the
-     * buttons inside of the list item are clicked.
+     * sale button inside of the list item is clicked.
      */
     public interface ProductClickListener {
         void onItemClick(long id);
-        void onDecrementButtonClick(long id, int quantity);
-        void onIncrementButtonClick(long id, int quantity);
+        void onSaleButtonClick(long id, int quantity);
     }
 
     /**
@@ -182,10 +181,9 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
         private final TextView quantityTextView;
 
         /**
-         * Increments and decrements the quantity of the product.
+         * Decrements the quantity of the product.
          */
-        private final Button decrementButton;
-        private final Button incrementButton;
+        private final Button saleButton;
 
         /**
          * Constructs a new view holder for the given item view.
@@ -197,12 +195,10 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
             nameTextView = itemView.findViewById(R.id.name_text_view);
             priceTextView = itemView.findViewById(R.id.price_text_view);
             quantityTextView = itemView.findViewById(R.id.quantity_text_view);
-            decrementButton = itemView.findViewById(R.id.decrement_quantity_button);
-            incrementButton = itemView.findViewById(R.id.increment_quantity_button);
+            saleButton = itemView.findViewById(R.id.sale_button);
 
             itemView.setOnClickListener(this);
-            decrementButton.setOnClickListener(this);
-            incrementButton.setOnClickListener(this);
+            saleButton.setOnClickListener(this);
         }
 
         /**
@@ -215,10 +211,8 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
         public void onClick(View view) {
             if (view == itemView) {
                 listener.onItemClick(getItemId());
-            } else if (view == decrementButton) {
-                listener.onDecrementButtonClick(getItemId(), getQuantity());
-            } else if (view == incrementButton) {
-                listener.onIncrementButtonClick(getItemId(), getQuantity());
+            } else if (view == saleButton) {
+                listener.onSaleButtonClick(getItemId(), getQuantity());
             }
         }
 
