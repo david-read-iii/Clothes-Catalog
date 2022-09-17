@@ -200,7 +200,7 @@ public class InventoryActivity extends AppCompatActivity implements
     }
 
     /**
-     * Invoked when the decrement button of a list item in the recycler view is clicked. It updates
+     * Invoked when the sale button of a list item in the recycler view is clicked. It updates
      * the appropriate product in the product provider with a quantity decremented by one. If the
      * update operation fails, an error snackbar is shown.
      *
@@ -208,7 +208,7 @@ public class InventoryActivity extends AppCompatActivity implements
      * @param quantity Quantity of the product corresponding with this list item.
      */
     @Override
-    public void onDecrementButtonClick(long id, int quantity) {
+    public void onSaleButtonClick(long id, int quantity) {
         // Do not allow decrements below 0.
         if (quantity <= 0) {
             return;
@@ -218,32 +218,6 @@ public class InventoryActivity extends AppCompatActivity implements
         Uri uri = ContentUris.withAppendedId(ProductContract.ProductEntry.CONTENT_URI, id);
         ContentValues values = new ContentValues();
         values.put(ProductContract.ProductEntry.COLUMN_QUANTITY, quantity - 1);
-        int countRowsUpdated = getContentResolver().update(uri, values, null, null);
-
-        if (countRowsUpdated == -1) {
-            // Update failed.
-            Snackbar.make(
-                    inventoryCoordinatorLayout,
-                    R.string.update_product_failed_message,
-                    BaseTransientBottomBar.LENGTH_SHORT
-            ).show();
-        }
-    }
-
-    /**
-     * Invoked when the increment button of a list item in the recycler view is clicked. It updates
-     * the appropriate product in the product provider with a quantity incremented by one. If the
-     * update operation fails, an error snackbar is shown.
-     *
-     * @param id       Id of the product corresponding with this list item.
-     * @param quantity Quantity of the product corresponding with this list item.
-     */
-    @Override
-    public void onIncrementButtonClick(long id, int quantity) {
-        // Perform update.
-        Uri uri = ContentUris.withAppendedId(ProductContract.ProductEntry.CONTENT_URI, id);
-        ContentValues values = new ContentValues();
-        values.put(ProductContract.ProductEntry.COLUMN_QUANTITY, quantity + 1);
         int countRowsUpdated = getContentResolver().update(uri, values, null, null);
 
         if (countRowsUpdated == -1) {
