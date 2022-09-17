@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -135,6 +136,21 @@ public class DetailActivity extends AppCompatActivity implements
     }
 
     /**
+     * Callback invoked to initialize the action bar. It inflates the action bar's layout.
+     *
+     * @param menu The options menu in which you place your items.
+     * @return True to show the menu. False to hide the menu.
+     */
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (selectedProductUri != null) {
+            // Only show if UI is in update product mode.
+            getMenuInflater().inflate(R.menu.menu_detail_update_product_mode, menu);
+        }
+        return true;
+    }
+
+    /**
      * Callback invoked when an action bar option is clicked. It specifies what actions to take when
      * either option is clicked.
      *
@@ -144,7 +160,10 @@ public class DetailActivity extends AppCompatActivity implements
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if (id == android.R.id.home) {
+        if (id == R.id.action_delete_product) {
+            onDeleteProductButtonClick();
+            return true;
+        } else if (id == android.R.id.home) {
             // Mimic back press behavior for its back animation.
             onBackPressed();
             return true;
@@ -231,6 +250,21 @@ public class DetailActivity extends AppCompatActivity implements
         quantityTextInputEditText.setText("");
         supplierTextInputEditText.setText("");
         pictureTextInputEditText.setText("");
+    }
+
+    /**
+     * Invoked when the delete product button in the action bar is clicked. It deletes the product
+     * corresponding with this activity. If the deletion operation fails, it shows an error
+     * snackbar.
+     */
+    private void onDeleteProductButtonClick() {
+        int countRowsDeleted = getContentResolver().delete(selectedProductUri, null, null);
+        if (countRowsDeleted == -1) {
+            // Deletion failed.
+            showSnackbar(R.string.delete_product_failed_message);
+            return;
+        }
+        finish();
     }
 
     /**
