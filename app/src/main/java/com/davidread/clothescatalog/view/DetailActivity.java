@@ -113,8 +113,10 @@ public class DetailActivity extends AppCompatActivity implements
         pictureTextInputEditText.setEnabled(false);
 
         Button decrementQuantityButton = findViewById(R.id.decrement_quantity_button);
+        decrementQuantityButton.setOnClickListener(this::onDecrementQuantityButtonClick);
         TooltipCompat.setTooltipText(decrementQuantityButton, getString(R.string.decrement_quantity_button_tooltip));
         Button incrementQuantityButton = findViewById(R.id.increment_quantity_button);
+        incrementQuantityButton.setOnClickListener(this::onIncrementQuantityButtonClick);
         TooltipCompat.setTooltipText(incrementQuantityButton, getString(R.string.increment_quantity_button_tooltip));
 
         FloatingActionButton saveProductButton = findViewById(R.id.save_product_button);
@@ -232,6 +234,44 @@ public class DetailActivity extends AppCompatActivity implements
     }
 
     /**
+     * Invoked when the decrement button is clicked. It decrements the quantity of the value in
+     * {@link #quantityTextInputEditText} by 1 without letting the quantity fall below 0.
+     */
+    private void onDecrementQuantityButtonClick(View view) {
+        Integer quantity = extractValueFromEditText(
+                quantityTextInputEditText,
+                QUANTITY_PATTERN,
+                Integer.class
+        );
+        if (quantity == null || quantity <= 0) {
+            // No quantity was in the text field or the quantity cannot be decremented any further.
+            return;
+        }
+        quantity--;
+        String quantityString = Integer.toString(quantity);
+        quantityTextInputEditText.setText(quantityString);
+    }
+
+    /**
+     * Invoked when the increment button is clicked. It increments the quantity of the value in
+     * {@link #quantityTextInputEditText} by 1.
+     */
+    private void onIncrementQuantityButtonClick(View view) {
+        Integer quantity = extractValueFromEditText(
+                quantityTextInputEditText,
+                QUANTITY_PATTERN,
+                Integer.class
+        );
+        if (quantity == null) {
+            // No quantity was in the text field.
+            return;
+        }
+        quantity++;
+        String quantityString = Integer.toString(quantity);
+        quantityTextInputEditText.setText(quantityString);
+    }
+
+    /**
      * Invoked when the save product button is clicked. First, it validates the contents of the text
      * fields. If an invalidation if found, a snackbar error is shown and execution stops. Then, it
      * either adds a product or updates a product, depending on this activity's mode.
@@ -317,6 +357,48 @@ public class DetailActivity extends AppCompatActivity implements
      */
     private void showSnackbar(@StringRes int resId) {
         Snackbar.make(detailCoordinatorLayout, resId, BaseTransientBottomBar.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Extracts the value from an edit text and returns it as some given class type. It will only
+     * return the value if the value matches some given regular expression and if no conversion
+     * errors occur. Otherwise, it will return {@code null}.
+     *
+     * @param editText    Edit text to extract from.
+     * @param pattern     Regular expression to match the extracted string to.
+     * @param returnClass Class type to convert the extracted value to. Accepts only {@link String}
+     *                    and {@link Integer} so far.
+     * @param <T>         Class type to convert the extracted value to. Accepts only {@link String}
+     *                    and {@link Integer} so far.
+     * @return The value from the edit text. {@code null} if regular expression matching fails or
+     * if some conversion error occurs.
+     */
+    @Nullable
+    private <T> T extractValueFromEditText(
+            @NonNull TextInputEditText editText,
+            @NonNull String pattern,
+            @NonNull Class<T> returnClass
+    ) {
+        Editable textEditable = editText.getText();
+        if (textEditable == null) {
+            return null;
+        }
+        String textString = textEditable.toString();
+        if (!textString.matches(pattern)) {
+            return null;
+        }
+        if (returnClass == String.class) {
+            return returnClass.cast(textString);
+        } else if (returnClass == Integer.class) {
+            try {
+                int textInteger = Integer.parseInt(textString);
+                return returnClass.cast(textInteger);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        } else {
+            return null;
+        }
     }
 
     /**
