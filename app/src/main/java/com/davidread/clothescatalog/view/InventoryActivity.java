@@ -2,6 +2,7 @@ package com.davidread.clothescatalog.view;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.TooltipCompat;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -212,11 +213,7 @@ public class InventoryActivity extends AppCompatActivity implements
 
         if (countRowsUpdated == -1) {
             // Update failed.
-            Snackbar.make(
-                    inventoryCoordinatorLayout,
-                    R.string.update_product_failed_message,
-                    BaseTransientBottomBar.LENGTH_SHORT
-            ).show();
+            showSnackbar(R.string.update_product_failed_message);
         }
     }
 
@@ -227,6 +224,16 @@ public class InventoryActivity extends AppCompatActivity implements
     private void onAddProductButtonClick(View view) {
         Intent intent = new Intent(this, DetailActivity.class);
         startActivity(intent);
+    }
+
+    /**
+     * Shows a snackbar in the UI with the given message.
+     *
+     * @param resId String resource id for the message.
+     */
+    private void showSnackbar(@StringRes int resId) {
+        Snackbar.make(inventoryCoordinatorLayout, resId, BaseTransientBottomBar.LENGTH_SHORT)
+                .show();
     }
 
     /**
@@ -241,11 +248,7 @@ public class InventoryActivity extends AppCompatActivity implements
         );
         if (insertUri == null) {
             // Insertion failed.
-            Snackbar.make(
-                    inventoryCoordinatorLayout,
-                    R.string.add_product_failed_message,
-                    BaseTransientBottomBar.LENGTH_SHORT
-            ).show();
+            showSnackbar(R.string.add_product_failed_message);
         }
     }
 
@@ -293,11 +296,7 @@ public class InventoryActivity extends AppCompatActivity implements
         );
         if (countRowsDeleted == -1) {
             // Deletion failed.
-            Snackbar.make(
-                    inventoryCoordinatorLayout,
-                    R.string.delete_product_failed_message,
-                    BaseTransientBottomBar.LENGTH_SHORT
-            ).show();
+            showSnackbar(R.string.delete_product_failed_message);
         }
     }
 
