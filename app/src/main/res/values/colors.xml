@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <color name="primary">#d32f2f</color>
     <color name="primary_light">#ff6659</color>
     <color name="primary_dark">#9a0007</color>
@@ -11,4 +12,17 @@
     <color name="black">#000000</color>
     <color name="white">#FFFFFF</color>
     <color name="ic_launcher_background">#d32f2f</color>
+
+    <array name="sample_image_backgrounds">
+        <item>#1A237E</item>
+        <item>#880E4F</item>
+        <item>#006064</item>
+        <item>#F57F17</item>
+        <item>#BF360C</item>
+        <item>#01579B</item>
+        <item>#33691E</item>
+        <item>#4A148C</item>
+        <item>#B71C1C</item>
+    </array>
+
 </resources>

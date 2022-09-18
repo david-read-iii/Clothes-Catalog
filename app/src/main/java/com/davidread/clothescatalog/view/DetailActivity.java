@@ -55,6 +55,12 @@ public class DetailActivity extends AppCompatActivity implements
     private Uri selectedProductUri;
 
     /**
+     * Contains background colors to apply onto a sample image for
+     * {@link #setSampleImageInPhotoImageView(String)}.
+     */
+    private int[] sampleImageBackgroundColors;
+
+    /**
      * Root view of the layout for animating the save product button when a snackbar appears.
      */
     private CoordinatorLayout detailCoordinatorLayout;
@@ -83,6 +89,8 @@ public class DetailActivity extends AppCompatActivity implements
 
         Intent intent = getIntent();
         selectedProductUri = intent.getData();
+
+        sampleImageBackgroundColors = getResources().getIntArray(R.array.sample_image_backgrounds);
 
         detailCoordinatorLayout = findViewById(R.id.detail_coordinator_layout);
         photoImageView = findViewById(R.id.photo_image_view);
@@ -132,7 +140,7 @@ public class DetailActivity extends AppCompatActivity implements
         if (selectedProductUri == null) {
             // Put UI in add product mode.
             setTitle(R.string.add_product_title);
-            setSampleImageInPhotoImageView();
+            setSampleImageInPhotoImageView("");
         } else {
             // Put UI in update product mode.
             setTitle(R.string.update_product_title);
@@ -239,7 +247,9 @@ public class DetailActivity extends AppCompatActivity implements
         quantityTextInputEditText.setText(quantity);
         supplierTextInputEditText.setText(supplier);
         if (picture == null) {
-            setSampleImageInPhotoImageView();
+            setSampleImageInPhotoImageView(name);
+        } else {
+            // TODO: Display stored image somehow.
         }
     }
 
@@ -255,7 +265,7 @@ public class DetailActivity extends AppCompatActivity implements
         priceTextInputEditText.setText("");
         quantityTextInputEditText.setText("");
         supplierTextInputEditText.setText("");
-        setSampleImageInPhotoImageView();
+        setSampleImageInPhotoImageView("");
     }
 
     /**
@@ -420,13 +430,18 @@ public class DetailActivity extends AppCompatActivity implements
     }
 
     /**
-     * Displays a sample image resource for {@link #photoImageView}.
+     * Displays a sample image resource in the given image view.
+     *
+     * @param name Used as a seed for picking a background color. Recommend to use this product's
+     *             name to keep the color somewhat consistent.
      */
-    private void setSampleImageInPhotoImageView() {
+    private void setSampleImageInPhotoImageView(@NonNull String name) {
         photoImageView.setImageResource(R.drawable.ic_sample_image);
-        photoImageView.setColorFilter(getColor(R.color.white));
-        photoImageView.setBackgroundColor(getColor(R.color.primary));
         photoImageView.setScaleType(ImageView.ScaleType.CENTER);
+        photoImageView.setColorFilter(getColor(R.color.white));
+
+        int colorIndex = name.length() % sampleImageBackgroundColors.length;
+        photoImageView.setBackgroundColor(sampleImageBackgroundColors[colorIndex]);
     }
 
     /**
