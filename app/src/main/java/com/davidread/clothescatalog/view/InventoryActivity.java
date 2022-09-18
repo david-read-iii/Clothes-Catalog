@@ -71,7 +71,7 @@ public class InventoryActivity extends AppCompatActivity implements
         emptyListPrimaryTextView = findViewById(R.id.empty_list_primary_text_view);
         emptyListSecondaryTextView = findViewById(R.id.empty_list_secondary_text_view);
         FloatingActionButton addProductButton = findViewById(R.id.add_product_button);
-        addProductButton.setOnClickListener(this::onAddProductButtonClick);
+        addProductButton.setOnClickListener((view) -> onAddProductButtonClick());
         TooltipCompat.setTooltipText(addProductButton, getString(R.string.add_product_button_tooltip));
         RecyclerView recyclerView = findViewById(R.id.product_recycler_view);
         recyclerView.setAdapter(productCursorAdapter);
@@ -195,26 +195,26 @@ public class InventoryActivity extends AppCompatActivity implements
      * all products confirmation dialog.
      */
     private void onDeleteAllProductsClick() {
+        DialogInterface.OnClickListener onPositiveButtonClickListener = (dialogInterface, which) ->
+                onDeleteAllProductsConfirmationDialogDeleteButtonClick();
+
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setMessage(R.string.delete_all_products_confirmation_dialog_message)
                 .setPositiveButton(
-                        R.string.generic_delete_confirmation_dialog_positive_label,
-                        this::onDeleteAllProductsConfirmationDialogPositiveButtonClick
+                        R.string.generic_delete_dialog_button_label,
+                        onPositiveButtonClickListener
                 )
-                .setNegativeButton(R.string.generic_dialog_negative_label, null)
+                .setNegativeButton(R.string.generic_cancel_dialog_button_label, null)
                 .create();
         dialog.show();
     }
 
     /**
-     * Invoked when the positive button of the delete all products confirmation dialog is clicked.
+     * Invoked when the delete button of the delete all products confirmation dialog is clicked.
      * It deletes all products from the product provider. If the deletion operation fails, it shows
      * an error snackbar.
      */
-    private void onDeleteAllProductsConfirmationDialogPositiveButtonClick(
-            DialogInterface dialog,
-            int which
-    ) {
+    private void onDeleteAllProductsConfirmationDialogDeleteButtonClick() {
         int countRowsDeleted = getContentResolver().delete(
                 ProductContract.ProductEntry.CONTENT_URI,
                 null,
@@ -270,7 +270,7 @@ public class InventoryActivity extends AppCompatActivity implements
      * Invoked when the add product button is clicked. It launches the {@link DetailActivity}
      * without passing any content URI.
      */
-    private void onAddProductButtonClick(View view) {
+    private void onAddProductButtonClick() {
         Intent intent = new Intent(this, DetailActivity.class);
         startActivity(intent);
     }
