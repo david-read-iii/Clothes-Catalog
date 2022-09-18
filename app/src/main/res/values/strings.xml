@@ -48,4 +48,9 @@
     <string name="text_invalid_error_message">Enter a value between 1 and 250 characters</string>
     <string name="number_invalid_error_message">Enter a value between 1 and 9 digits</string>
 
+    <!-- Dialog strings. -->
+    <string name="delete_confirmation_dialog_message">Delete this product?</string>
+    <string name="delete_confirmation_dialog_positive_label">Delete</string>
+    <string name="delete_confirmation_dialog_negative_label">Cancel</string>
+
 </resources>
