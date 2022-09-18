@@ -260,22 +260,25 @@ public class DetailActivity extends AppCompatActivity implements
      */
     private void onDeleteProductButtonClick() {
         AlertDialog dialog = new AlertDialog.Builder(this)
-                .setMessage(R.string.delete_confirmation_dialog_message)
+                .setMessage(R.string.delete_product_confirmation_dialog_message)
                 .setPositiveButton(
-                        R.string.delete_confirmation_dialog_positive_label,
-                        this::onDeleteProductConfirmationPositiveButtonClick
+                        R.string.generic_delete_confirmation_dialog_positive_label,
+                        this::onDeleteProductConfirmationDialogPositiveButtonClick
                 )
-                .setNegativeButton(R.string.delete_confirmation_dialog_negative_label, null)
+                .setNegativeButton(R.string.generic_delete_confirmation_dialog_negative_label, null)
                 .create();
         dialog.show();
     }
 
     /**
-     * Invoked when the positive button of the delete product confirmation dialog ic clicked. It
+     * Invoked when the positive button of the delete product confirmation dialog is clicked. It
      * deletes the product corresponding with this activity. If the deletion operation fails, it
      * shows an error snackbar.
      */
-    private void onDeleteProductConfirmationPositiveButtonClick(DialogInterface dialog, int which) {
+    private void onDeleteProductConfirmationDialogPositiveButtonClick(
+            DialogInterface dialog,
+            int which
+    ) {
         int countRowsDeleted = getContentResolver().delete(selectedProductUri, null, null);
         if (countRowsDeleted == -1) {
             // Deletion failed.

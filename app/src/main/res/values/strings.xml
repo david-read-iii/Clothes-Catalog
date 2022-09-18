@@ -49,8 +49,9 @@
     <string name="number_invalid_error_message">Enter a value between 1 and 9 digits</string>
 
     <!-- Dialog strings. -->
-    <string name="delete_confirmation_dialog_message">Delete this product?</string>
-    <string name="delete_confirmation_dialog_positive_label">Delete</string>
-    <string name="delete_confirmation_dialog_negative_label">Cancel</string>
+    <string name="delete_all_products_confirmation_dialog_message">Delete all products?</string>
+    <string name="delete_product_confirmation_dialog_message">Delete this product?</string>
+    <string name="generic_delete_confirmation_dialog_positive_label">Delete</string>
+    <string name="generic_delete_confirmation_dialog_negative_label">Cancel</string>
 
 </resources>
