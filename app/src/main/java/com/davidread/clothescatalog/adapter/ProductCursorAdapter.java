@@ -1,4 +1,4 @@
-package com.davidread.clothescatalog;
+package com.davidread.clothescatalog.adapter;
 
 import android.database.Cursor;
 import android.view.LayoutInflater;
@@ -11,7 +11,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.davidread.clothescatalog.R;
 import com.davidread.clothescatalog.database.ProductContract;
+
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Adapts a {@link Cursor} of product provider data for a {@link RecyclerView}.
@@ -19,10 +23,14 @@ import com.davidread.clothescatalog.database.ProductContract;
 public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdapter.ProductViewHolder> {
 
     /**
-     * Listener that specifies what to do when a list item is clicked and when the buttons inside of
-     * a list item are clicked.
+     * Listener that specifies what to do when a list item is clicked.
      */
-    private final ProductClickListener listener;
+    private final Consumer<Long> onItemClickListener;
+
+    /**
+     * Listener that specifies what to do when the sale button in a list item is clicked.
+     */
+    private final BiConsumer<Long, Integer> onSaleButtonClickListener;
 
     /**
      * {@link Cursor} to be adapted.
@@ -35,13 +43,19 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
     private int idColumnIndex;
 
     /**
-     * Constructs a new adapter with a listener for handling clicks.
+     * Constructs a new adapter with listeners for handling clicks.
      *
-     * @param listener Specifies what to do when a list item is clicked or when a list item button
-     *                 is clicked.
+     * @param onItemClickListener       Listener that specifies what to do when a list item is
+     *                                  clicked.
+     * @param onSaleButtonClickListener Listener that specifies what to do when the sale button in a
+     *                                  list item is clicked.
      */
-    public ProductCursorAdapter(@NonNull ProductClickListener listener) {
-        this.listener = listener;
+    public ProductCursorAdapter(
+            @NonNull Consumer<Long> onItemClickListener,
+            @NonNull BiConsumer<Long, Integer> onSaleButtonClickListener
+    ) {
+        this.onItemClickListener = onItemClickListener;
+        this.onSaleButtonClickListener = onSaleButtonClickListener;
         setHasStableIds(true);
     }
 
@@ -119,7 +133,7 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
      * Set a new {@link Cursor} to adapt.
      */
     public void setCursor(@Nullable Cursor newCursor) {
-        if (cursor != null) {
+        if (cursor != null && newCursor != cursor) {
             cursor.close();
         }
         cursor = newCursor;
@@ -150,20 +164,10 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
     }
 
     /**
-     * Interface definition for a callback to be invoked when a list item is clicked or when the
-     * buttons inside of the list item are clicked.
-     */
-    public interface ProductClickListener {
-        void onItemClick(long id);
-        void onDecrementButtonClick(long id, int quantity);
-        void onIncrementButtonClick(long id, int quantity);
-    }
-
-    /**
      * Describes a single product item view and metadata about its place within the
      * {@link RecyclerView}.
      */
-    protected class ProductViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    protected class ProductViewHolder extends RecyclerView.ViewHolder {
 
         /**
          * Holds the name of the product.
@@ -181,12 +185,6 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
         private final TextView quantityTextView;
 
         /**
-         * Increments and decrements the quantity of the product.
-         */
-        private final Button decrementButton;
-        private final Button incrementButton;
-
-        /**
          * Constructs a new view holder for the given item view.
          *
          * @param itemView Item view to be held.
@@ -196,29 +194,12 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
             nameTextView = itemView.findViewById(R.id.name_text_view);
             priceTextView = itemView.findViewById(R.id.price_text_view);
             quantityTextView = itemView.findViewById(R.id.quantity_text_view);
-            decrementButton = itemView.findViewById(R.id.decrement_quantity_button);
-            incrementButton = itemView.findViewById(R.id.increment_quantity_button);
 
-            itemView.setOnClickListener(this);
-            decrementButton.setOnClickListener(this);
-            incrementButton.setOnClickListener(this);
-        }
-
-        /**
-         * Invoked when the item view or a button in the item view is clicked. It calls the
-         * appropriate {@link #listener} callback.
-         *
-         * @param view View being clicked.
-         */
-        @Override
-        public void onClick(View view) {
-            if (view == itemView) {
-                listener.onItemClick(getItemId());
-            } else if (view == decrementButton) {
-                listener.onDecrementButtonClick(getItemId(), getQuantity());
-            } else if (view == incrementButton) {
-                listener.onIncrementButtonClick(getItemId(), getQuantity());
-            }
+            itemView.setOnClickListener((view) -> onItemClickListener.accept(getItemId()));
+            Button saleButton = itemView.findViewById(R.id.sale_button);
+            saleButton.setOnClickListener(
+                    (view) -> onSaleButtonClickListener.accept(getItemId(), getQuantity())
+            );
         }
 
         public TextView getNameTextView() {

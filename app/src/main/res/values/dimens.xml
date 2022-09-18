@@ -1,10 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="generic_activity_margin">16dp</dimen>
+
+    <!-- InventoryActivity dimens. -->
     <dimen name="product_recycler_view_bottom_margin">88dp</dimen>
     <dimen name="add_product_button_size">56dp</dimen>
     <dimen name="add_product_button_margin">16dp</dimen>
     <dimen name="list_item_margin">16dp</dimen>
-    <dimen name="list_item_horizontal_margin">8dp</dimen>
+    <dimen name="list_item_views_horizontal_margin">8dp</dimen>
+    <dimen name="sale_button_vertical_size">48dp</dimen>
+
+    <!-- DetailActivity dimens. -->
     <dimen name="quantity_button_size">48dp</dimen>
+    <dimen name="detail_activity_horizontal_margin">16dp</dimen>
+    <dimen name="detail_edit_text_vertical_margin">16dp</dimen>
+    <dimen name="save_product_button_size">56dp</dimen>
+    <dimen name="save_product_button_margin">16dp</dimen>
+    <dimen name="detail_scroll_view_bottom_margin">88dp</dimen>
+
 </resources>

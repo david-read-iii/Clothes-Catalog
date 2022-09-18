@@ -2,22 +2,56 @@
 
     <string name="app_name">Clothes Catalog</string>
 
+    <!-- Action bar titles. -->
+    <string name="inventory_action_bar_title">Inventory</string>
+    <string name="add_product_title">Add a new product</string>
+    <string name="update_product_title">Update a product</string>
+
     <!-- Snackbar messages. -->
     <string name="add_product_failed_message">Failed to add a new product</string>
     <string name="update_product_failed_message">Failed to update this product</string>
     <string name="delete_product_failed_message">Failed to delete this product</string>
+    <string name="delete_all_products_failed_message">Failed to delete all products</string>
+    <string name="check_form_message">Check form for empty fields or errors</string>
 
     <!-- Action bar labels. -->
     <string name="action_add_dummy_product_label">Add a dummy product</string>
     <string name="action_delete_all_products_label">Delete all products</string>
+    <string name="action_delete_product_label">Delete product</string>
 
     <!-- Empty list text labels. -->
     <string name="empty_list_primary_label">It\'s a bit lonely here…</string>
     <string name="empty_list_secondary_label">Get started by adding a product</string>
 
     <!-- Button labels and strings. -->
-    <string name="decrement_quantity_button_label">-</string>
-    <string name="increment_quantity_button_label">+</string>
+    <string name="sale_button_label">Sale</string>
+    <string name="sale_button_content_description">Decrement this product\'s quantity by 1</string>
+    <string name="add_product_button_tooltip">Add product</string>
     <string name="add_product_button_content_description">Add a new product to the catalog</string>
+    <string name="decrement_quantity_button_label">-</string>
+    <string name="decrement_quantity_button_tooltip">Decrement quantity</string>
+    <string name="decrement_quantity_button_content_description">Decrement this product\'s quantity</string>
+    <string name="increment_quantity_button_label">+</string>
+    <string name="increment_quantity_button_tooltip">Increment quantity</string>
+    <string name="increment_quantity_button_content_description">Increment this product\s quantity</string>
+    <string name="save_product_button_tooltip">Save product</string>
+    <string name="save_product_button_content_description">Save and close this product</string>
+
+    <!-- EditText hints. -->
+    <string name="name_hint">Name</string>
+    <string name="price_hint">Price</string>
+    <string name="quantity_hint">Quantity</string>
+    <string name="supplier_hint">Supplier</string>
+    <string name="picture_hint">Picture</string>
+
+    <!-- EditText error messages. -->
+    <string name="text_invalid_error_message">Enter a value between 1 and 250 characters</string>
+    <string name="number_invalid_error_message">Enter a value between 1 and 9 digits</string>
+
+    <!-- Dialog strings. -->
+    <string name="delete_all_products_confirmation_dialog_message">Delete all products?</string>
+    <string name="delete_product_confirmation_dialog_message">Delete this product?</string>
+    <string name="generic_delete_confirmation_dialog_positive_label">Delete</string>
+    <string name="generic_delete_confirmation_dialog_negative_label">Cancel</string>
 
 </resources>
