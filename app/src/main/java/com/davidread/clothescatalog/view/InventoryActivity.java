@@ -37,7 +37,7 @@ import java.util.Random;
  * Provides a user interface for browsing a list of products queried from the product provider.
  */
 public class InventoryActivity extends AppCompatActivity implements
-        LoaderManager.LoaderCallbacks<Cursor>, ProductCursorAdapter.ProductClickListener {
+        LoaderManager.LoaderCallbacks<Cursor> {
 
     /**
      * Adapts a {@link Cursor} of data from the product provider for a {@link RecyclerView}.
@@ -64,7 +64,7 @@ public class InventoryActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inventory);
         setTitle(R.string.inventory_action_bar_title);
-        productCursorAdapter = new ProductCursorAdapter(this);
+        productCursorAdapter = new ProductCursorAdapter(this::onItemClick, this::onSaleButtonClick);
         inventoryCoordinatorLayout = findViewById(R.id.inventory_coordinator_layout);
         emptyListPrimaryTextView = findViewById(R.id.empty_list_primary_text_view);
         emptyListSecondaryTextView = findViewById(R.id.empty_list_secondary_text_view);
@@ -172,49 +172,6 @@ public class InventoryActivity extends AppCompatActivity implements
         setEmptyListTextVisibility(View.VISIBLE);
     }
 
-
-    /**
-     * Invoked when a list item in the recycler view is clicked. It launches the
-     * {@link DetailActivity} while passing the content URI that corresponds with the clicked
-     * list item.
-     *
-     * @param id Id of the product corresponding with this list item.
-     */
-    @Override
-    public void onItemClick(long id) {
-        Intent intent = new Intent(this, DetailActivity.class);
-        Uri uri = ContentUris.withAppendedId(ProductContract.ProductEntry.CONTENT_URI, id);
-        intent.setData(uri);
-        startActivity(intent);
-    }
-
-    /**
-     * Invoked when the sale button of a list item in the recycler view is clicked. It updates
-     * the appropriate product in the product provider with a quantity decremented by one. If the
-     * update operation fails, an error snackbar is shown.
-     *
-     * @param id       Id of the product corresponding with this list item.
-     * @param quantity Quantity of the product corresponding with this list item.
-     */
-    @Override
-    public void onSaleButtonClick(long id, int quantity) {
-        // Do not allow decrements below 0.
-        if (quantity <= 0) {
-            return;
-        }
-
-        // Perform update.
-        Uri uri = ContentUris.withAppendedId(ProductContract.ProductEntry.CONTENT_URI, id);
-        ContentValues values = new ContentValues();
-        values.put(ProductContract.ProductEntry.COLUMN_QUANTITY, quantity - 1);
-        int countRowsUpdated = getContentResolver().update(uri, values, null, null);
-
-        if (countRowsUpdated == -1) {
-            // Update failed.
-            showSnackbar(R.string.update_product_failed_message);
-        }
-    }
-
     /**
      * Invoked when the add dummy product button in the action bar is clicked. It adds a product
      * with dummy data to the product provider. If the insertion operation fails, it shows an error
@@ -245,6 +202,46 @@ public class InventoryActivity extends AppCompatActivity implements
         if (countRowsDeleted == -1) {
             // Deletion failed.
             showSnackbar(R.string.delete_all_products_failed_message);
+        }
+    }
+
+    /**
+     * Invoked when a list item in the recycler view is clicked. It launches the
+     * {@link DetailActivity} while passing the content URI that corresponds with the clicked
+     * list item.
+     *
+     * @param id Id of the product corresponding with this list item.
+     */
+    private void onItemClick(long id) {
+        Intent intent = new Intent(this, DetailActivity.class);
+        Uri uri = ContentUris.withAppendedId(ProductContract.ProductEntry.CONTENT_URI, id);
+        intent.setData(uri);
+        startActivity(intent);
+    }
+
+    /**
+     * Invoked when the sale button of a list item in the recycler view is clicked. It updates
+     * the appropriate product in the product provider with a quantity decremented by one. If the
+     * update operation fails, an error snackbar is shown.
+     *
+     * @param id       Id of the product corresponding with this list item.
+     * @param quantity Quantity of the product corresponding with this list item.
+     */
+    private void onSaleButtonClick(long id, int quantity) {
+        // Do not allow decrements below 0.
+        if (quantity <= 0) {
+            return;
+        }
+
+        // Perform update.
+        Uri uri = ContentUris.withAppendedId(ProductContract.ProductEntry.CONTENT_URI, id);
+        ContentValues values = new ContentValues();
+        values.put(ProductContract.ProductEntry.COLUMN_QUANTITY, quantity - 1);
+        int countRowsUpdated = getContentResolver().update(uri, values, null, null);
+
+        if (countRowsUpdated == -1) {
+            // Update failed.
+            showSnackbar(R.string.update_product_failed_message);
         }
     }
 
