@@ -3,6 +3,7 @@ package com.davidread.clothescatalog.view;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.TooltipCompat;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
@@ -189,11 +191,30 @@ public class InventoryActivity extends AppCompatActivity implements
     }
 
     /**
-     * Invoked when the delete all products button in the action bar is clicked. It deletes all
-     * products from the product provider. If the deletion operation fails, it shows an error
-     * snackbar.
+     * Invoked when the delete all products button in the action bar is clicked. It shows a delete
+     * all products confirmation dialog.
      */
     private void onDeleteAllProductsClick() {
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setMessage(R.string.delete_all_products_confirmation_dialog_message)
+                .setPositiveButton(
+                        R.string.generic_delete_confirmation_dialog_positive_label,
+                        this::onDeleteAllProductsConfirmationDialogPositiveButtonClick
+                )
+                .setNegativeButton(R.string.generic_delete_confirmation_dialog_negative_label, null)
+                .create();
+        dialog.show();
+    }
+
+    /**
+     * Invoked when the positive button of the delete all products confirmation dialog is clicked.
+     * It deletes all products from the product provider. If the deletion operation fails, it shows
+     * an error snackbar.
+     */
+    private void onDeleteAllProductsConfirmationDialogPositiveButtonClick(
+            DialogInterface dialog,
+            int which
+    ) {
         int countRowsDeleted = getContentResolver().delete(
                 ProductContract.ProductEntry.CONTENT_URI,
                 null,
