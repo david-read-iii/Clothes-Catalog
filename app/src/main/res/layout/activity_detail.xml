@@ -19,16 +19,39 @@
             android:layout_height="wrap_content"
             android:paddingHorizontal="@dimen/detail_activity_horizontal_margin">
 
+            <!-- Photo. -->
+            <ImageView
+                android:id="@+id/photo_image_view"
+                android:layout_width="0dp"
+                android:layout_height="@dimen/photo_image_view_vertical_size"
+                android:layout_marginTop="@dimen/detail_activity_views_vertical_margin"
+                android:contentDescription="@string/photo_image_view_content_description"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <!-- Change photo button. -->
+            <Button
+                android:id="@+id/change_photo_button"
+                style="@style/SecondaryButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/change_photo_button_content_description"
+                android:text="@string/change_photo_button_label"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/photo_image_view" />
+
             <!-- Name field. -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/name_text_input_layout"
                 style="@style/TextInputLayoutStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/detail_edit_text_vertical_margin"
+                android:layout_marginTop="@dimen/detail_activity_views_vertical_margin"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/change_photo_button"
                 app:startIconDrawable="@drawable/ic_name">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -46,7 +69,7 @@
                 style="@style/TextInputLayoutStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/detail_edit_text_vertical_margin"
+                android:layout_marginTop="@dimen/detail_activity_views_vertical_margin"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/name_text_input_layout"
@@ -67,7 +90,7 @@
                 style="@style/TextInputLayoutStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/detail_edit_text_vertical_margin"
+                android:layout_marginTop="@dimen/detail_activity_views_vertical_margin"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/price_text_input_layout"
@@ -82,6 +105,7 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Decrement quantity button. -->
             <Button
                 android:id="@+id/decrement_quantity_button"
                 style="@style/SecondaryButtonStyle"
@@ -92,6 +116,7 @@
                 app:layout_constraintEnd_toStartOf="@id/increment_quantity_button"
                 app:layout_constraintTop_toBottomOf="@id/quantity_text_input_layout" />
 
+            <!-- Increment quantity button. -->
             <Button
                 android:id="@+id/increment_quantity_button"
                 style="@style/SecondaryButtonStyle"
@@ -108,7 +133,7 @@
                 style="@style/TextInputLayoutStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/detail_edit_text_vertical_margin"
+                android:layout_marginTop="@dimen/detail_activity_views_vertical_margin"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/decrement_quantity_button"
@@ -120,26 +145,6 @@
                     android:layout_height="wrap_content"
                     android:hint="@string/supplier_hint"
                     android:inputType="textCapWords" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Picture field. -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/picture_text_input_layout"
-                style="@style/TextInputLayoutStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/detail_edit_text_vertical_margin"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/supplier_text_input_layout"
-                app:startIconDrawable="@drawable/ic_picture">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/picture_text_input_edit_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/picture_hint" />
 
             </com.google.android.material.textfield.TextInputLayout>
 

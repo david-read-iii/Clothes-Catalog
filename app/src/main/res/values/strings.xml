@@ -28,6 +28,8 @@
     <string name="sale_button_content_description">Decrement this product\'s quantity by 1</string>
     <string name="add_product_button_tooltip">Add product</string>
     <string name="add_product_button_content_description">Add a new product to the catalog</string>
+    <string name="change_photo_button_label">Change photo</string>
+    <string name="change_photo_button_content_description">Launch options to change this product\'s photo</string>
     <string name="decrement_quantity_button_label">-</string>
     <string name="decrement_quantity_button_tooltip">Decrement quantity</string>
     <string name="decrement_quantity_button_content_description">Decrement this product\'s quantity</string>
@@ -37,12 +39,14 @@
     <string name="save_product_button_tooltip">Save product</string>
     <string name="save_product_button_content_description">Save and close this product</string>
 
+    <!-- Image view strings. -->
+    <string name="photo_image_view_content_description">This product\'s photo</string>
+
     <!-- EditText hints. -->
     <string name="name_hint">Name</string>
     <string name="price_hint">Price</string>
     <string name="quantity_hint">Quantity</string>
     <string name="supplier_hint">Supplier</string>
-    <string name="picture_hint">Picture</string>
 
     <!-- EditText error messages. -->
     <string name="text_invalid_error_message">Enter a value between 1 and 250 characters</string>
