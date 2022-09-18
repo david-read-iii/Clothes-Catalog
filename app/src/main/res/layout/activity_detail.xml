@@ -148,26 +148,6 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Picture field. -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/picture_text_input_layout"
-                style="@style/TextInputLayoutStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/detail_activity_views_vertical_margin"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/supplier_text_input_layout"
-                app:startIconDrawable="@drawable/ic_picture">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/picture_text_input_edit_text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/picture_hint" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </ScrollView>

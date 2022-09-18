@@ -47,7 +47,6 @@
     <string name="price_hint">Price</string>
     <string name="quantity_hint">Quantity</string>
     <string name="supplier_hint">Supplier</string>
-    <string name="picture_hint">Picture</string>
 
     <!-- EditText error messages. -->
     <string name="text_invalid_error_message">Enter a value between 1 and 250 characters</string>

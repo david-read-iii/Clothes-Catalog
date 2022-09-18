@@ -33,9 +33,6 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.util.Arrays;
-import java.util.Random;
-
 /**
  * Provides a user interface for viewing and editing a particular product. It is for a new product
  * if {@link #selectedProductUri} is {@code null}. Otherwise, it is for an existing product.
@@ -74,7 +71,6 @@ public class DetailActivity extends AppCompatActivity implements
     private TextInputEditText priceTextInputEditText;
     private TextInputEditText quantityTextInputEditText;
     private TextInputEditText supplierTextInputEditText;
-    private TextInputEditText pictureTextInputEditText;
 
     /**
      * Callback invoked to initialize the activity. Initializes member variables, initializes the
@@ -94,9 +90,6 @@ public class DetailActivity extends AppCompatActivity implements
         priceTextInputEditText = findViewById(R.id.price_text_input_edit_text);
         quantityTextInputEditText = findViewById(R.id.quantity_text_input_edit_text);
         supplierTextInputEditText = findViewById(R.id.supplier_text_input_edit_text);
-        pictureTextInputEditText = findViewById(R.id.picture_text_input_edit_text);
-
-        setSampleImageInPhotoImageView();
 
         TextInputLayout nameTextInputLayout = findViewById(R.id.name_text_input_layout);
         nameTextInputEditText.addTextChangedListener(new RegexTextWatcher(
@@ -122,7 +115,6 @@ public class DetailActivity extends AppCompatActivity implements
                 getString(R.string.text_invalid_error_message),
                 supplierTextInputLayout
         ));
-        pictureTextInputEditText.setEnabled(false);
 
         Button changePhotoButton = findViewById(R.id.change_photo_button);
         changePhotoButton.setOnClickListener(this::onChangePhotoButtonClick);
@@ -140,7 +132,7 @@ public class DetailActivity extends AppCompatActivity implements
         if (selectedProductUri == null) {
             // Put UI in add product mode.
             setTitle(R.string.add_product_title);
-            pictureTextInputEditText.setText(getRandomPictureValue());
+            setSampleImageInPhotoImageView();
         } else {
             // Put UI in update product mode.
             setTitle(R.string.update_product_title);
@@ -241,13 +233,14 @@ public class DetailActivity extends AppCompatActivity implements
         String quantity = data.getString(quantityColumnIndex);
         String supplier = data.getString(supplierColumnIndex);
         byte[] picture = data.getBlob(pictureColumnIndex);
-        String pictureString = Arrays.toString(picture);
 
         nameTextInputEditText.setText(name);
         priceTextInputEditText.setText(price);
         quantityTextInputEditText.setText(quantity);
         supplierTextInputEditText.setText(supplier);
-        pictureTextInputEditText.setText(pictureString);
+        if (picture == null) {
+            setSampleImageInPhotoImageView();
+        }
     }
 
     /**
@@ -262,7 +255,7 @@ public class DetailActivity extends AppCompatActivity implements
         priceTextInputEditText.setText("");
         quantityTextInputEditText.setText("");
         supplierTextInputEditText.setText("");
-        pictureTextInputEditText.setText("");
+        setSampleImageInPhotoImageView();
     }
 
     /**
@@ -375,14 +368,8 @@ public class DetailActivity extends AppCompatActivity implements
                 SUPPLIER_PATTERN,
                 String.class
         );
-        byte[] picture = extractValueFromEditText(
-                pictureTextInputEditText,
-                null,
-                byte[].class
-        );
 
-        if (name == null || price == null || quantity == null || supplier == null
-                || picture == null) {
+        if (name == null || price == null || quantity == null || supplier == null) {
             // A value could not be extracted or the value did not match its regular expression.
             showSnackbar(R.string.check_form_message);
             return;
@@ -393,7 +380,7 @@ public class DetailActivity extends AppCompatActivity implements
         values.put(ProductContract.ProductEntry.COLUMN_PRICE, price);
         values.put(ProductContract.ProductEntry.COLUMN_QUANTITY, quantity);
         values.put(ProductContract.ProductEntry.COLUMN_SUPPLIER, supplier);
-        values.put(ProductContract.ProductEntry.COLUMN_PICTURE, picture);
+        values.put(ProductContract.ProductEntry.COLUMN_PICTURE, (byte[]) null);
 
         if (selectedProductUri == null) {
             // Add a product.
@@ -483,55 +470,9 @@ public class DetailActivity extends AppCompatActivity implements
             } catch (NumberFormatException e) {
                 return null;
             }
-        } else if (returnClass == byte[].class) {
-            try {
-                // Return value as byte[].
-                byte[] textByteArray = parseStringToBytes(textString);
-                return returnClass.cast(textByteArray);
-            } catch (NumberFormatException e) {
-                return null;
-            }
         } else {
             // Unsupported return class.
             return null;
         }
-    }
-
-    /**
-     * Returns the string representation of a dummy picture {@code byte[]} to display in
-     * {@link #pictureTextInputEditText}.
-     *
-     * @return A dummy picture {@code byte[]} string representation.
-     */
-    @NonNull
-    private String getRandomPictureValue() {
-        Random random = new Random(System.currentTimeMillis());
-        byte[] byteArray = new byte[]{
-                (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
-                (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
-                (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
-                (byte) (random.nextInt((127 - (-128)) + 1) + (-128))
-        };
-        return Arrays.toString(byteArray);
-    }
-
-    /**
-     * Parses the string representation of a {@code byte[]} into a {@code byte[]}.
-     *
-     * @param string String representation of a {@code byte[]}.
-     * @return {@code byte[]} parsed from the string.
-     */
-    @NonNull
-    private byte[] parseStringToBytes(@NonNull String string) throws NumberFormatException {
-        string = string.replace(" ", "");
-        string = string.replace("[", "");
-        string = string.replace("]", "");
-        String[] byteStrings = string.split(",");
-
-        byte[] bytes = new byte[byteStrings.length];
-        for (int i = 0; i < byteStrings.length; i++) {
-            bytes[i] = Byte.parseByte(byteStrings[i]);
-        }
-        return bytes;
     }
 }

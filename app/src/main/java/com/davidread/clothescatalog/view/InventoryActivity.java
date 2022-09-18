@@ -304,15 +304,7 @@ public class InventoryActivity extends AppCompatActivity implements
                 ProductContract.ProductEntry.COLUMN_SUPPLIER,
                 DummyConstants.DUMMY_SUPPLIERS[random.nextInt(DummyConstants.DUMMY_SUPPLIERS.length)]
         );
-        values.put(
-                ProductContract.ProductEntry.COLUMN_PICTURE,
-                new byte[]{
-                        (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
-                        (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
-                        (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
-                        (byte) (random.nextInt((127 - (-128)) + 1) + (-128))
-                }
-        );
+        values.put(ProductContract.ProductEntry.COLUMN_PICTURE, (byte[]) null);
         return values;
     }
 
