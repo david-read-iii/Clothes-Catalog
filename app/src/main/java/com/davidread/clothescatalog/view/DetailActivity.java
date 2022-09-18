@@ -49,6 +49,13 @@ public class DetailActivity extends AppCompatActivity implements
     private static final String SUPPLIER_PATTERN = "^.{1,250}$";
 
     /**
+     * Ids for identifying which dialog item is clicked in {@link #onChangePhotoButtonClick(View)}.
+     */
+    private static final int TAKE_NEW_PHOTO_DIALOG_ITEM_ID = 0;
+    private static final int REMOVE_PHOTO_DIALOG_ITEM_ID = 1;
+    private static final int SELECT_NEW_PHOTO_DIALOG_ITEM_ID = 2;
+
+    /**
      * Content URI corresponds with the product being shown. If {@code null}, then a new product is
      * being added.
      */
@@ -279,7 +286,7 @@ public class DetailActivity extends AppCompatActivity implements
                         R.string.generic_delete_confirmation_dialog_positive_label,
                         this::onDeleteProductConfirmationDialogPositiveButtonClick
                 )
-                .setNegativeButton(R.string.generic_delete_confirmation_dialog_negative_label, null)
+                .setNegativeButton(R.string.generic_dialog_negative_label, null)
                 .create();
         dialog.show();
     }
@@ -303,12 +310,63 @@ public class DetailActivity extends AppCompatActivity implements
     }
 
     /**
-     * Invoked when the change photo button is clicked. Does nothing for now.
+     * Invoked when the change photo button is clicked. It shows a dialog that presents change photo
+     * options.
      */
     private void onChangePhotoButtonClick(View view) {
+        DialogInterface.OnClickListener onItemClickListener = (dialogInterface, which) -> {
+            switch (which) {
+                case TAKE_NEW_PHOTO_DIALOG_ITEM_ID:
+                    onTakeNewPhotoButtonClick();
+                    break;
+                case REMOVE_PHOTO_DIALOG_ITEM_ID:
+                    onRemovePhotoButtonClick();
+                    break;
+                case SELECT_NEW_PHOTO_DIALOG_ITEM_ID:
+                    onSelectNewPhotoButtonClick();
+                    break;
+            }
+        };
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setItems(R.array.change_photo_dialog_items, onItemClickListener)
+                .setNegativeButton(R.string.generic_dialog_negative_label, null)
+                .create();
+        dialog.show();
+    }
+
+    /**
+     * Invoked when the take new photo button is clicked. It does nothing for now.
+     */
+    private void onTakeNewPhotoButtonClick() {
+        // TODO: Launch intent to take a new photo with some Camera API and put it in the ImageView.
         Snackbar.make(
                 detailCoordinatorLayout,
-                "Show change photo options dialog",
+                "Launch intent to take a new photo with some Camera API and put it in the ImageView",
+                BaseTransientBottomBar.LENGTH_SHORT
+        ).show();
+    }
+
+    /**
+     * Invoked when the remove photo button is clicked. It does nothing for now.
+     */
+    private void onRemovePhotoButtonClick() {
+        // TODO: Put sample photo in the ImageView.
+        Snackbar.make(
+                detailCoordinatorLayout,
+                "Put sample photo in the ImageView",
+                BaseTransientBottomBar.LENGTH_SHORT
+        ).show();
+    }
+
+    /**
+     * Invoked when the select new photo button is clicked. It does nothing for now.
+     */
+    private void onSelectNewPhotoButtonClick() {
+        // TODO: Launch intent to select a new photo with some Gallery API and put it in the ImageView.
+        Snackbar.make(
+                detailCoordinatorLayout,
+                "Launch intent to select a new photo with some Gallery API and put it in the ImageView",
                 BaseTransientBottomBar.LENGTH_SHORT
         ).show();
     }

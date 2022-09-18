@@ -201,7 +201,7 @@ public class InventoryActivity extends AppCompatActivity implements
                         R.string.generic_delete_confirmation_dialog_positive_label,
                         this::onDeleteAllProductsConfirmationDialogPositiveButtonClick
                 )
-                .setNegativeButton(R.string.generic_delete_confirmation_dialog_negative_label, null)
+                .setNegativeButton(R.string.generic_dialog_negative_label, null)
                 .create();
         dialog.show();
     }
