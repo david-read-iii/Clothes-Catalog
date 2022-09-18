@@ -11,6 +11,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -62,6 +63,11 @@ public class DetailActivity extends AppCompatActivity implements
     private CoordinatorLayout detailCoordinatorLayout;
 
     /**
+     * Image view to display a photo representing the product.
+     */
+    private ImageView photoImageView;
+
+    /**
      * Text fields displaying the value of each product property in the layout.
      */
     private TextInputEditText nameTextInputEditText;
@@ -83,11 +89,14 @@ public class DetailActivity extends AppCompatActivity implements
         selectedProductUri = intent.getData();
 
         detailCoordinatorLayout = findViewById(R.id.detail_coordinator_layout);
+        photoImageView = findViewById(R.id.photo_image_view);
         nameTextInputEditText = findViewById(R.id.name_text_input_edit_text);
         priceTextInputEditText = findViewById(R.id.price_text_input_edit_text);
         quantityTextInputEditText = findViewById(R.id.quantity_text_input_edit_text);
         supplierTextInputEditText = findViewById(R.id.supplier_text_input_edit_text);
         pictureTextInputEditText = findViewById(R.id.picture_text_input_edit_text);
+
+        setSampleImageInPhotoImageView();
 
         TextInputLayout nameTextInputLayout = findViewById(R.id.name_text_input_layout);
         nameTextInputEditText.addTextChangedListener(new RegexTextWatcher(
@@ -115,6 +124,8 @@ public class DetailActivity extends AppCompatActivity implements
         ));
         pictureTextInputEditText.setEnabled(false);
 
+        Button changePhotoButton = findViewById(R.id.change_photo_button);
+        changePhotoButton.setOnClickListener(this::onChangePhotoButtonClick);
         Button decrementQuantityButton = findViewById(R.id.decrement_quantity_button);
         decrementQuantityButton.setOnClickListener(this::onDecrementQuantityButtonClick);
         TooltipCompat.setTooltipText(decrementQuantityButton, getString(R.string.decrement_quantity_button_tooltip));
@@ -289,6 +300,17 @@ public class DetailActivity extends AppCompatActivity implements
     }
 
     /**
+     * Invoked when the change photo button is clicked. Does nothing for now.
+     */
+    private void onChangePhotoButtonClick(View view) {
+        Snackbar.make(
+                detailCoordinatorLayout,
+                "Show change photo options dialog",
+                BaseTransientBottomBar.LENGTH_SHORT
+        ).show();
+    }
+
+    /**
      * Invoked when the decrement button is clicked. It decrements the quantity of the value in
      * {@link #quantityTextInputEditText} by 1 without letting the quantity fall below 0.
      */
@@ -408,6 +430,16 @@ public class DetailActivity extends AppCompatActivity implements
      */
     private void showSnackbar(@StringRes int resId) {
         Snackbar.make(detailCoordinatorLayout, resId, BaseTransientBottomBar.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Displays a sample image resource for {@link #photoImageView}.
+     */
+    private void setSampleImageInPhotoImageView() {
+        photoImageView.setImageResource(R.drawable.ic_sample_image);
+        photoImageView.setColorFilter(getColor(R.color.white));
+        photoImageView.setBackgroundColor(getColor(R.color.primary));
+        photoImageView.setScaleType(ImageView.ScaleType.CENTER);
     }
 
     /**

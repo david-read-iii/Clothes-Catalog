@@ -10,11 +10,12 @@
     <dimen name="sale_button_vertical_size">48dp</dimen>
 
     <!-- DetailActivity dimens. -->
-    <dimen name="quantity_button_size">48dp</dimen>
     <dimen name="detail_activity_horizontal_margin">16dp</dimen>
-    <dimen name="detail_edit_text_vertical_margin">16dp</dimen>
+    <dimen name="detail_scroll_view_bottom_margin">88dp</dimen>
+    <dimen name="detail_activity_views_vertical_margin">16dp</dimen>
+    <dimen name="photo_image_view_vertical_size">200dp</dimen>
+    <dimen name="quantity_button_size">48dp</dimen>
     <dimen name="save_product_button_size">56dp</dimen>
     <dimen name="save_product_button_margin">16dp</dimen>
-    <dimen name="detail_scroll_view_bottom_margin">88dp</dimen>
 
 </resources>
