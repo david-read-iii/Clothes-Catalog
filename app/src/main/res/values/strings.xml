@@ -55,7 +55,12 @@
     <!-- Dialog strings. -->
     <string name="delete_all_products_confirmation_dialog_message">Delete all products?</string>
     <string name="delete_product_confirmation_dialog_message">Delete this product?</string>
-    <string name="generic_delete_confirmation_dialog_positive_label">Delete</string>
-    <string name="generic_delete_confirmation_dialog_negative_label">Cancel</string>
+    <string name="generic_delete_dialog_button_label">Delete</string>
+    <string name="generic_cancel_dialog_button_label">Cancel</string>
+    <array name="change_photo_dialog_item_labels">
+        <item>Take new photo</item>
+        <item>Remove photo</item>
+        <item>Select new photo</item>
+    </array>
 
 </resources>

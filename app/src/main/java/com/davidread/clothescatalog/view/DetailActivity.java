@@ -49,6 +49,13 @@ public class DetailActivity extends AppCompatActivity implements
     private static final String SUPPLIER_PATTERN = "^.{1,250}$";
 
     /**
+     * Ids for identifying which dialog item is clicked in {@link #onChangePhotoButtonClick()}.
+     */
+    private static final int TAKE_NEW_PHOTO_DIALOG_ITEM_ID = 0;
+    private static final int REMOVE_PHOTO_DIALOG_ITEM_ID = 1;
+    private static final int SELECT_NEW_PHOTO_DIALOG_ITEM_ID = 2;
+
+    /**
      * Content URI corresponds with the product being shown. If {@code null}, then a new product is
      * being added.
      */
@@ -125,16 +132,16 @@ public class DetailActivity extends AppCompatActivity implements
         ));
 
         Button changePhotoButton = findViewById(R.id.change_photo_button);
-        changePhotoButton.setOnClickListener(this::onChangePhotoButtonClick);
+        changePhotoButton.setOnClickListener((view) -> onChangePhotoButtonClick());
         Button decrementQuantityButton = findViewById(R.id.decrement_quantity_button);
-        decrementQuantityButton.setOnClickListener(this::onDecrementQuantityButtonClick);
+        decrementQuantityButton.setOnClickListener((view) -> onDecrementQuantityButtonClick());
         TooltipCompat.setTooltipText(decrementQuantityButton, getString(R.string.decrement_quantity_button_tooltip));
         Button incrementQuantityButton = findViewById(R.id.increment_quantity_button);
-        incrementQuantityButton.setOnClickListener(this::onIncrementQuantityButtonClick);
+        incrementQuantityButton.setOnClickListener((view) -> onIncrementQuantityButtonClick());
         TooltipCompat.setTooltipText(incrementQuantityButton, getString(R.string.increment_quantity_button_tooltip));
 
         FloatingActionButton saveProductButton = findViewById(R.id.save_product_button);
-        saveProductButton.setOnClickListener(this::onSaveProductButtonClick);
+        saveProductButton.setOnClickListener((view) -> onSaveProductButtonClick());
         TooltipCompat.setTooltipText(saveProductButton, getString(R.string.save_product_button_tooltip));
 
         if (selectedProductUri == null) {
@@ -273,26 +280,26 @@ public class DetailActivity extends AppCompatActivity implements
      * product confirmation dialog.
      */
     private void onDeleteProductButtonClick() {
+        DialogInterface.OnClickListener onPositiveButtonClickListener = (dialogInterface, which) ->
+                onDeleteProductConfirmationDialogDeleteButtonClick();
+
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setMessage(R.string.delete_product_confirmation_dialog_message)
                 .setPositiveButton(
-                        R.string.generic_delete_confirmation_dialog_positive_label,
-                        this::onDeleteProductConfirmationDialogPositiveButtonClick
+                        R.string.generic_delete_dialog_button_label,
+                        onPositiveButtonClickListener
                 )
-                .setNegativeButton(R.string.generic_delete_confirmation_dialog_negative_label, null)
+                .setNegativeButton(R.string.generic_cancel_dialog_button_label, null)
                 .create();
         dialog.show();
     }
 
     /**
-     * Invoked when the positive button of the delete product confirmation dialog is clicked. It
+     * Invoked when the delete button of the delete product confirmation dialog is clicked. It
      * deletes the product corresponding with this activity. If the deletion operation fails, it
      * shows an error snackbar.
      */
-    private void onDeleteProductConfirmationDialogPositiveButtonClick(
-            DialogInterface dialog,
-            int which
-    ) {
+    private void onDeleteProductConfirmationDialogDeleteButtonClick() {
         int countRowsDeleted = getContentResolver().delete(selectedProductUri, null, null);
         if (countRowsDeleted == -1) {
             // Deletion failed.
@@ -303,12 +310,63 @@ public class DetailActivity extends AppCompatActivity implements
     }
 
     /**
-     * Invoked when the change photo button is clicked. Does nothing for now.
+     * Invoked when the change photo button is clicked. It shows a dialog that presents change photo
+     * options.
      */
-    private void onChangePhotoButtonClick(View view) {
+    private void onChangePhotoButtonClick() {
+        DialogInterface.OnClickListener onItemClickListener = (dialogInterface, which) -> {
+            switch (which) {
+                case TAKE_NEW_PHOTO_DIALOG_ITEM_ID:
+                    onTakeNewPhotoButtonClick();
+                    break;
+                case REMOVE_PHOTO_DIALOG_ITEM_ID:
+                    onRemovePhotoButtonClick();
+                    break;
+                case SELECT_NEW_PHOTO_DIALOG_ITEM_ID:
+                    onSelectNewPhotoButtonClick();
+                    break;
+            }
+        };
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setItems(R.array.change_photo_dialog_item_labels, onItemClickListener)
+                .setNegativeButton(R.string.generic_cancel_dialog_button_label, null)
+                .create();
+        dialog.show();
+    }
+
+    /**
+     * Invoked when the take new photo button is clicked. It does nothing for now.
+     */
+    private void onTakeNewPhotoButtonClick() {
+        // TODO: Launch intent to take a new photo with some Camera API and put it in the ImageView.
         Snackbar.make(
                 detailCoordinatorLayout,
-                "Show change photo options dialog",
+                "Launch intent to take a new photo with some Camera API and put it in the ImageView",
+                BaseTransientBottomBar.LENGTH_SHORT
+        ).show();
+    }
+
+    /**
+     * Invoked when the remove photo button is clicked. It does nothing for now.
+     */
+    private void onRemovePhotoButtonClick() {
+        // TODO: Put sample photo in the ImageView.
+        Snackbar.make(
+                detailCoordinatorLayout,
+                "Put sample photo in the ImageView",
+                BaseTransientBottomBar.LENGTH_SHORT
+        ).show();
+    }
+
+    /**
+     * Invoked when the select new photo button is clicked. It does nothing for now.
+     */
+    private void onSelectNewPhotoButtonClick() {
+        // TODO: Launch intent to select a new photo with some Gallery API and put it in the ImageView.
+        Snackbar.make(
+                detailCoordinatorLayout,
+                "Launch intent to select a new photo with some Gallery API and put it in the ImageView",
                 BaseTransientBottomBar.LENGTH_SHORT
         ).show();
     }
@@ -317,7 +375,7 @@ public class DetailActivity extends AppCompatActivity implements
      * Invoked when the decrement button is clicked. It decrements the quantity of the value in
      * {@link #quantityTextInputEditText} by 1 without letting the quantity fall below 0.
      */
-    private void onDecrementQuantityButtonClick(View view) {
+    private void onDecrementQuantityButtonClick() {
         Integer quantity = extractValueFromEditText(
                 quantityTextInputEditText,
                 QUANTITY_PATTERN,
@@ -336,7 +394,7 @@ public class DetailActivity extends AppCompatActivity implements
      * Invoked when the increment button is clicked. It increments the quantity of the value in
      * {@link #quantityTextInputEditText} by 1.
      */
-    private void onIncrementQuantityButtonClick(View view) {
+    private void onIncrementQuantityButtonClick() {
         Integer quantity = extractValueFromEditText(
                 quantityTextInputEditText,
                 QUANTITY_PATTERN,
@@ -356,7 +414,7 @@ public class DetailActivity extends AppCompatActivity implements
      * fields. If an invalidation if found, a snackbar error is shown and execution stops. Then, it
      * either adds a product or updates a product, depending on this activity's mode.
      */
-    private void onSaveProductButtonClick(View view) {
+    private void onSaveProductButtonClick() {
 
         String name = extractValueFromEditText(
                 nameTextInputEditText,
