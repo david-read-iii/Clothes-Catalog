@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    compileSdk 33
     defaultConfig {
         applicationId "com.davidread.clothescatalog"
         minSdk 24
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -17,6 +17,10 @@ android {
 dependencies {
     // Material Components library. Contains modular and customizable Material Design UI components.
     implementation "com.google.android.material:material:1.6.1"
+
+    // AndroidX Activity and Fragment library. Needed for ActivityResultLauncher and related APIs.
+    implementation "androidx.activity:activity:1.6.0"
+    implementation "androidx.fragment:fragment:1.5.3"
 
     // AndroidX Rules library. Needed for ProviderTestRule.
     androidTestImplementation "androidx.test:rules:1.4.0"
