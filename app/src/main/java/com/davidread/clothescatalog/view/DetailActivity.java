@@ -91,6 +91,11 @@ public class DetailActivity extends AppCompatActivity implements
     private int[] sampleImageBackgroundColors;
 
     /**
+     * Unique id corresponding with this product.
+     */
+    private int id;
+
+    /**
      * Contains the {@code byte[]} representation of the image corresponding with this product. If
      * {@code null}, then this product has no picture.
      */
@@ -195,7 +200,7 @@ public class DetailActivity extends AppCompatActivity implements
         if (selectedProductUri == null) {
             // Put UI in add product mode.
             setTitle(R.string.add_product_title);
-            showSampleImageInPhotoImageView(0);
+            showSampleImageInPhotoImageView(id);
         } else {
             // Put UI in update product mode.
             setTitle(R.string.update_product_title);
@@ -292,7 +297,7 @@ public class DetailActivity extends AppCompatActivity implements
         int supplierColumnIndex = data.getColumnIndex(ProductContract.ProductEntry.COLUMN_SUPPLIER);
         int pictureColumnIndex = data.getColumnIndex(ProductContract.ProductEntry.COLUMN_PICTURE);
 
-        int id = data.getInt(idColumnIndex);
+        id = data.getInt(idColumnIndex);
         String name = data.getString(nameColumnIndex);
         String price = data.getString(priceColumnIndex);
         String quantity = data.getString(quantityColumnIndex);
@@ -325,7 +330,7 @@ public class DetailActivity extends AppCompatActivity implements
         quantityTextInputEditText.setText("");
         supplierTextInputEditText.setText("");
         picture = null;
-        showSampleImageInPhotoImageView(0);
+        showSampleImageInPhotoImageView(id);
     }
 
     /**
@@ -404,15 +409,12 @@ public class DetailActivity extends AppCompatActivity implements
     }
 
     /**
-     * Invoked when the remove photo button is clicked. It does nothing for now.
+     * Invoked when the remove photo button is clicked. It clears the stored photo for this product
+     * and shows the sample image in the UI.
      */
     private void onRemovePhotoButtonClick() {
-        // TODO: Put sample photo in the ImageView.
-        Snackbar.make(
-                detailCoordinatorLayout,
-                "Put sample photo in the ImageView",
-                BaseTransientBottomBar.LENGTH_SHORT
-        ).show();
+        picture = null;
+        showSampleImageInPhotoImageView(id);
     }
 
     /**
