@@ -9,8 +9,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.telephony.PhoneNumberUtils;
 import android.text.Editable;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
@@ -36,6 +38,8 @@ import androidx.loader.content.Loader;
 import com.davidread.clothescatalog.BuildConfig;
 import com.davidread.clothescatalog.R;
 import com.davidread.clothescatalog.database.ProductContract;
+import com.davidread.clothescatalog.util.EmailTextWatcher;
+import com.davidread.clothescatalog.util.PhoneNumberTextWatcher;
 import com.davidread.clothescatalog.util.RegexTextWatcher;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -147,6 +151,8 @@ public class DetailActivity extends AppCompatActivity implements
     private TextInputEditText priceTextInputEditText;
     private TextInputEditText quantityTextInputEditText;
     private TextInputEditText supplierTextInputEditText;
+    private TextInputEditText supplierPhoneNumberTextInputEditText;
+    private TextInputEditText supplierEmailTextInputEditText;
 
     /**
      * Callback invoked to initialize the activity. Initializes member variables, initializes the
@@ -181,6 +187,10 @@ public class DetailActivity extends AppCompatActivity implements
         priceTextInputEditText = findViewById(R.id.price_text_input_edit_text);
         quantityTextInputEditText = findViewById(R.id.quantity_text_input_edit_text);
         supplierTextInputEditText = findViewById(R.id.supplier_text_input_edit_text);
+        supplierPhoneNumberTextInputEditText = findViewById(
+                R.id.supplier_phone_number_text_input_edit_text
+        );
+        supplierEmailTextInputEditText = findViewById(R.id.supplier_email_text_input_edit_text);
 
         TextInputLayout nameTextInputLayout = findViewById(R.id.name_text_input_layout);
         nameTextInputEditText.addTextChangedListener(new RegexTextWatcher(
@@ -205,6 +215,20 @@ public class DetailActivity extends AppCompatActivity implements
                 SUPPLIER_PATTERN,
                 getString(R.string.text_invalid_error_message),
                 supplierTextInputLayout
+        ));
+        TextInputLayout supplierPhoneNumberTextInputLayout = findViewById(
+                R.id.supplier_phone_number_text_input_layout
+        );
+        supplierPhoneNumberTextInputEditText.addTextChangedListener(new PhoneNumberTextWatcher(
+                getString(R.string.phone_number_invalid_error_message),
+                supplierPhoneNumberTextInputLayout
+        ));
+        TextInputLayout supplierEmailTextInputLayout = findViewById(
+                R.id.supplier_email_text_input_layout
+        );
+        supplierEmailTextInputEditText.addTextChangedListener(new EmailTextWatcher(
+                getString(R.string.email_invalid_error_message),
+                supplierEmailTextInputLayout
         ));
 
         Button changePhotoButton = findViewById(R.id.change_photo_button);
@@ -286,6 +310,8 @@ public class DetailActivity extends AppCompatActivity implements
                 ProductContract.ProductEntry.COLUMN_PRICE,
                 ProductContract.ProductEntry.COLUMN_QUANTITY,
                 ProductContract.ProductEntry.COLUMN_SUPPLIER,
+                ProductContract.ProductEntry.COLUMN_SUPPLIER_PHONE_NUMBER,
+                ProductContract.ProductEntry.COLUMN_SUPPLIER_EMAIL,
                 ProductContract.ProductEntry.COLUMN_PICTURE
         };
         return new CursorLoader(
@@ -318,6 +344,12 @@ public class DetailActivity extends AppCompatActivity implements
         int priceColumnIndex = data.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRICE);
         int quantityColumnIndex = data.getColumnIndex(ProductContract.ProductEntry.COLUMN_QUANTITY);
         int supplierColumnIndex = data.getColumnIndex(ProductContract.ProductEntry.COLUMN_SUPPLIER);
+        int supplierPhoneNumberColumnIndex = data.getColumnIndex(
+                ProductContract.ProductEntry.COLUMN_SUPPLIER_PHONE_NUMBER
+        );
+        int supplierEmailColumnIndex = data.getColumnIndex(
+                ProductContract.ProductEntry.COLUMN_SUPPLIER_EMAIL
+        );
         int pictureColumnIndex = data.getColumnIndex(ProductContract.ProductEntry.COLUMN_PICTURE);
 
         id = data.getInt(idColumnIndex);
@@ -325,12 +357,16 @@ public class DetailActivity extends AppCompatActivity implements
         String price = data.getString(priceColumnIndex);
         String quantity = data.getString(quantityColumnIndex);
         String supplier = data.getString(supplierColumnIndex);
+        String supplierPhoneNumber = data.getString(supplierPhoneNumberColumnIndex);
+        String supplierEmail = data.getString(supplierEmailColumnIndex);
         picture = data.getBlob(pictureColumnIndex);
 
         nameTextInputEditText.setText(name);
         priceTextInputEditText.setText(price);
         quantityTextInputEditText.setText(quantity);
         supplierTextInputEditText.setText(supplier);
+        supplierPhoneNumberTextInputEditText.setText(supplierPhoneNumber);
+        supplierEmailTextInputEditText.setText(supplierEmail);
         if (picture == null) {
             // Show sample image.
             showSampleImageInPhotoImageView(id);
@@ -342,7 +378,7 @@ public class DetailActivity extends AppCompatActivity implements
 
     /**
      * Invoked when a previously created loader is being reset, thus invalidating its dataset. It
-     * just resets the text fields.
+     * populates the image view with a sample image and resets the text fields.
      *
      * @param loader The Loader that is being reset.
      */
@@ -352,6 +388,8 @@ public class DetailActivity extends AppCompatActivity implements
         priceTextInputEditText.setText("");
         quantityTextInputEditText.setText("");
         supplierTextInputEditText.setText("");
+        supplierPhoneNumberTextInputEditText.setText("");
+        supplierEmailTextInputEditText.setText("");
         picture = null;
         showSampleImageInPhotoImageView(id);
     }
@@ -519,8 +557,18 @@ public class DetailActivity extends AppCompatActivity implements
                 SUPPLIER_PATTERN,
                 String.class
         );
+        String supplierPhoneNumber = extractPhoneNumberFromEditText(
+                supplierPhoneNumberTextInputEditText
+        );
+        String supplierEmail = extractEmailFromEditText(supplierEmailTextInputEditText);
 
-        if (name == null || price == null || quantity == null || supplier == null) {
+        if (name == null
+                || price == null
+                || quantity == null
+                || supplier == null
+                || supplierPhoneNumber == null
+                || supplierEmail == null
+        ) {
             // A value could not be extracted or the value did not match its regular expression.
             showSnackbar(R.string.check_form_message);
             return;
@@ -531,6 +579,8 @@ public class DetailActivity extends AppCompatActivity implements
         values.put(ProductContract.ProductEntry.COLUMN_PRICE, price);
         values.put(ProductContract.ProductEntry.COLUMN_QUANTITY, quantity);
         values.put(ProductContract.ProductEntry.COLUMN_SUPPLIER, supplier);
+        values.put(ProductContract.ProductEntry.COLUMN_SUPPLIER_PHONE_NUMBER, supplierPhoneNumber);
+        values.put(ProductContract.ProductEntry.COLUMN_SUPPLIER_EMAIL, supplierEmail);
         values.put(ProductContract.ProductEntry.COLUMN_PICTURE, picture);
 
         if (selectedProductUri == null) {
@@ -644,6 +694,58 @@ public class DetailActivity extends AppCompatActivity implements
             }
         } else {
             // Unsupported return class.
+            return null;
+        }
+    }
+
+    /**
+     * Extracts the phone number from an edit text and returns it as a string. It will only
+     * return the phone number if it is valid and if no conversion errors occur. Otherwise, it will
+     * return {@code null}.
+     *
+     * @param editText    Edit text to extract from.
+     * @return The phone number from the edit text. {@code null} if an invalid phone number was
+     * contained or if some conversion error occurs.
+     */
+    @Nullable
+    private String extractPhoneNumberFromEditText(@NonNull TextInputEditText editText) {
+        // Extract String from EditText.
+        Editable textEditable = editText.getText();
+        if (textEditable == null) {
+            return null;
+        }
+        String textString = textEditable.toString();
+        if (PhoneNumberUtils.isGlobalPhoneNumber(textString)) {
+            // Valid phone number.
+            return textString;
+        } else {
+            // Invalid phone number.
+            return null;
+        }
+    }
+
+    /**
+     * Extracts the email address from an edit text and returns it as a string. It will only return
+     * the email address if it is valid and if no conversion errors occur. Otherwise, it will return
+     * {@code null}.
+     *
+     * @param editText    Edit text to extract from.
+     * @return The email address from the edit text. {@code null} if an invalid email address was
+     * contained or if some conversion error occurs.
+     */
+    @Nullable
+    private String extractEmailFromEditText(@NonNull TextInputEditText editText) {
+        // Extract String from EditText.
+        Editable textEditable = editText.getText();
+        if (textEditable == null) {
+            return null;
+        }
+        String textString = textEditable.toString();
+        if (Patterns.EMAIL_ADDRESS.matcher(textString).matches()) {
+            // Valid email address.
+            return textString;
+        } else {
+            // Invalid email address.
             return null;
         }
     }

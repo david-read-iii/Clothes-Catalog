@@ -346,13 +346,13 @@ public class ProductProvider extends ContentProvider {
             }
         }
 
-        // Supplier phone number must be a non-negative Integer.
+        // Supplier phone number must be a nonempty String.
         if (values.containsKey(ProductContract.ProductEntry.COLUMN_SUPPLIER_PHONE_NUMBER)) {
             Object supplierPhoneNumber = values.get(
                     ProductContract.ProductEntry.COLUMN_SUPPLIER_PHONE_NUMBER
             );
-            if (!(supplierPhoneNumber instanceof Integer)
-                    || ((Integer) supplierPhoneNumber) < 0) {
+            if (!(supplierPhoneNumber instanceof String)
+                    || ((String) supplierPhoneNumber).isEmpty()) {
                 return false;
             }
         }
