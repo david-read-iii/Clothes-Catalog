@@ -14,6 +14,7 @@
     <string name="delete_all_products_failed_message">Failed to delete all products</string>
     <string name="check_form_message">Check form for empty fields or errors</string>
     <string name="take_picture_activity_failed_message">Failed to take photo</string>
+    <string name="pick_visual_media_activity_failed_message">Failed to select a photo</string>
 
     <!-- Action bar labels. -->
     <string name="action_add_dummy_product_label">Add a dummy product</string>
