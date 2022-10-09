@@ -346,10 +346,10 @@ public class ProductProvider extends ContentProvider {
             }
         }
 
-        // Picture column must be a byte array.
+        // Picture column must be either null or a byte array.
         if (values.containsKey(ProductContract.ProductEntry.COLUMN_PICTURE)) {
             Object picture = values.get(ProductContract.ProductEntry.COLUMN_PICTURE);
-            if (!(picture instanceof byte[])) {
+            if (picture != null && !(picture instanceof byte[])) {
                 return false;
             }
         }

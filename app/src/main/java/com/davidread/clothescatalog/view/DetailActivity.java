@@ -1,17 +1,26 @@
 package com.davidread.clothescatalog.view;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType;
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -19,10 +28,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.TooltipCompat;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.core.content.FileProvider;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 
+import com.davidread.clothescatalog.BuildConfig;
 import com.davidread.clothescatalog.R;
 import com.davidread.clothescatalog.database.ProductContract;
 import com.davidread.clothescatalog.util.RegexTextWatcher;
@@ -32,8 +43,14 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.util.Arrays;
-import java.util.Random;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Provides a user interface for viewing and editing a particular product. It is for a new product
@@ -41,6 +58,11 @@ import java.util.Random;
  */
 public class DetailActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
+
+    /**
+     * Tag to use for logs in this class.
+     */
+    private static final String TAG = DetailActivity.class.getSimpleName();
 
     /**
      * Regular expressions that each text field should be matched with to be valid.
@@ -51,15 +73,72 @@ public class DetailActivity extends AppCompatActivity implements
     private static final String SUPPLIER_PATTERN = "^.{1,250}$";
 
     /**
+     * Ids for identifying which dialog item is clicked in {@link #onChangePhotoButtonClick()}.
+     */
+    private static final int TAKE_NEW_PHOTO_DIALOG_ITEM_ID = 0;
+    private static final int REMOVE_PHOTO_DIALOG_ITEM_ID = 1;
+    private static final int SELECT_NEW_PHOTO_DIALOG_ITEM_ID = 2;
+
+    /**
+     * Authority for this app's file provider.
+     */
+    private static final String FILE_PROVIDER_AUTHORITY =
+            BuildConfig.APPLICATION_ID + ".fileprovider";
+
+    /**
+     * Used for building file names.
+     */
+    private static final String FILE_NAME = "IMG_%1$s_.jpg";
+    private static final String FILE_TIMESTAMP_PATTERN = "yyyyMMdd_HHmmss";
+
+    /**
      * Content URI corresponds with the product being shown. If {@code null}, then a new product is
      * being added.
      */
     private Uri selectedProductUri;
 
     /**
+     * Contains background colors to apply onto a sample image for
+     * {@link #showSampleImageInPhotoImageView(int)}.
+     */
+    private int[] sampleImageBackgroundColors;
+
+    /**
+     * Unique id corresponding with this product.
+     */
+    private int id;
+
+    /**
+     * Contains the {@code byte[]} representation of the image corresponding with this product. If
+     * {@code null}, then this product has no picture.
+     */
+    private byte[] picture;
+
+    /**
+     * Launches an activity to the camera to capture an image for the product.
+     */
+    private ActivityResultLauncher<Uri> takePictureActivityResultLauncher;
+
+    /**
+     * File containing the image captured by the camera in the activity started by
+     * {@link #takePictureActivityResultLauncher}.
+     */
+    private File takePictureFile;
+
+    /**
+     * Launches an activity to pick an image for the product.
+     */
+    private ActivityResultLauncher<PickVisualMediaRequest> pickVisualMediaActivityResultLauncher;
+
+    /**
      * Root view of the layout for animating the save product button when a snackbar appears.
      */
     private CoordinatorLayout detailCoordinatorLayout;
+
+    /**
+     * Image view to display an image representing the product.
+     */
+    private ImageView photoImageView;
 
     /**
      * Text fields displaying the value of each product property in the layout.
@@ -68,11 +147,10 @@ public class DetailActivity extends AppCompatActivity implements
     private TextInputEditText priceTextInputEditText;
     private TextInputEditText quantityTextInputEditText;
     private TextInputEditText supplierTextInputEditText;
-    private TextInputEditText pictureTextInputEditText;
 
     /**
      * Callback invoked to initialize the activity. Initializes member variables, initializes the
-     * text fields, and puts the activity in either add product or update product mode.
+     * layout views, and puts the activity in either add product or update product mode.
      */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -82,12 +160,27 @@ public class DetailActivity extends AppCompatActivity implements
         Intent intent = getIntent();
         selectedProductUri = intent.getData();
 
+        sampleImageBackgroundColors = getResources().getIntArray(R.array.sample_image_backgrounds);
+
+        takePictureActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.TakePicture(),
+                this::onTakePictureActivityResult
+        );
+
+        pickVisualMediaActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.PickVisualMedia(),
+                this::onPickVisualMediaActivityResult
+        );
+
         detailCoordinatorLayout = findViewById(R.id.detail_coordinator_layout);
+
+        photoImageView = findViewById(R.id.photo_image_view);
+        photoImageView.setScaleType(ImageView.ScaleType.CENTER);
+
         nameTextInputEditText = findViewById(R.id.name_text_input_edit_text);
         priceTextInputEditText = findViewById(R.id.price_text_input_edit_text);
         quantityTextInputEditText = findViewById(R.id.quantity_text_input_edit_text);
         supplierTextInputEditText = findViewById(R.id.supplier_text_input_edit_text);
-        pictureTextInputEditText = findViewById(R.id.picture_text_input_edit_text);
 
         TextInputLayout nameTextInputLayout = findViewById(R.id.name_text_input_layout);
         nameTextInputEditText.addTextChangedListener(new RegexTextWatcher(
@@ -113,23 +206,24 @@ public class DetailActivity extends AppCompatActivity implements
                 getString(R.string.text_invalid_error_message),
                 supplierTextInputLayout
         ));
-        pictureTextInputEditText.setEnabled(false);
 
+        Button changePhotoButton = findViewById(R.id.change_photo_button);
+        changePhotoButton.setOnClickListener((view) -> onChangePhotoButtonClick());
         Button decrementQuantityButton = findViewById(R.id.decrement_quantity_button);
-        decrementQuantityButton.setOnClickListener(this::onDecrementQuantityButtonClick);
+        decrementQuantityButton.setOnClickListener((view) -> onDecrementQuantityButtonClick());
         TooltipCompat.setTooltipText(decrementQuantityButton, getString(R.string.decrement_quantity_button_tooltip));
         Button incrementQuantityButton = findViewById(R.id.increment_quantity_button);
-        incrementQuantityButton.setOnClickListener(this::onIncrementQuantityButtonClick);
+        incrementQuantityButton.setOnClickListener((view) -> onIncrementQuantityButtonClick());
         TooltipCompat.setTooltipText(incrementQuantityButton, getString(R.string.increment_quantity_button_tooltip));
 
         FloatingActionButton saveProductButton = findViewById(R.id.save_product_button);
-        saveProductButton.setOnClickListener(this::onSaveProductButtonClick);
+        saveProductButton.setOnClickListener((view) -> onSaveProductButtonClick());
         TooltipCompat.setTooltipText(saveProductButton, getString(R.string.save_product_button_tooltip));
 
         if (selectedProductUri == null) {
             // Put UI in add product mode.
             setTitle(R.string.add_product_title);
-            pictureTextInputEditText.setText(getRandomPictureValue());
+            showSampleImageInPhotoImageView(id);
         } else {
             // Put UI in update product mode.
             setTitle(R.string.update_product_title);
@@ -205,8 +299,8 @@ public class DetailActivity extends AppCompatActivity implements
     }
 
     /**
-     * Invoked whenever a previously created loader finishes its load. It populates the text fields
-     * with properties of the fetched product.
+     * Invoked whenever a previously created loader finishes its load. It populates the image view
+     * and text fields with properties of the fetched product.
      *
      * @param loader The Loader that has finished.
      * @param data   The data generated by the Loader.
@@ -219,24 +313,31 @@ public class DetailActivity extends AppCompatActivity implements
             return;
         }
 
+        int idColumnIndex = data.getColumnIndex(ProductContract.ProductEntry._ID);
         int nameColumnIndex = data.getColumnIndex(ProductContract.ProductEntry.COLUMN_NAME);
         int priceColumnIndex = data.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRICE);
         int quantityColumnIndex = data.getColumnIndex(ProductContract.ProductEntry.COLUMN_QUANTITY);
         int supplierColumnIndex = data.getColumnIndex(ProductContract.ProductEntry.COLUMN_SUPPLIER);
         int pictureColumnIndex = data.getColumnIndex(ProductContract.ProductEntry.COLUMN_PICTURE);
 
+        id = data.getInt(idColumnIndex);
         String name = data.getString(nameColumnIndex);
         String price = data.getString(priceColumnIndex);
         String quantity = data.getString(quantityColumnIndex);
         String supplier = data.getString(supplierColumnIndex);
-        byte[] picture = data.getBlob(pictureColumnIndex);
-        String pictureString = Arrays.toString(picture);
+        picture = data.getBlob(pictureColumnIndex);
 
         nameTextInputEditText.setText(name);
         priceTextInputEditText.setText(price);
         quantityTextInputEditText.setText(quantity);
         supplierTextInputEditText.setText(supplier);
-        pictureTextInputEditText.setText(pictureString);
+        if (picture == null) {
+            // Show sample image.
+            showSampleImageInPhotoImageView(id);
+        } else {
+            // Show stored image.
+            showImageInPhotoImageView(picture);
+        }
     }
 
     /**
@@ -251,7 +352,8 @@ public class DetailActivity extends AppCompatActivity implements
         priceTextInputEditText.setText("");
         quantityTextInputEditText.setText("");
         supplierTextInputEditText.setText("");
-        pictureTextInputEditText.setText("");
+        picture = null;
+        showSampleImageInPhotoImageView(id);
     }
 
     /**
@@ -259,26 +361,26 @@ public class DetailActivity extends AppCompatActivity implements
      * product confirmation dialog.
      */
     private void onDeleteProductButtonClick() {
+        DialogInterface.OnClickListener onPositiveButtonClickListener = (dialogInterface, which) ->
+                onDeleteProductConfirmationDialogDeleteButtonClick();
+
         AlertDialog dialog = new AlertDialog.Builder(this)
                 .setMessage(R.string.delete_product_confirmation_dialog_message)
                 .setPositiveButton(
-                        R.string.generic_delete_confirmation_dialog_positive_label,
-                        this::onDeleteProductConfirmationDialogPositiveButtonClick
+                        R.string.generic_delete_dialog_button_label,
+                        onPositiveButtonClickListener
                 )
-                .setNegativeButton(R.string.generic_delete_confirmation_dialog_negative_label, null)
+                .setNegativeButton(R.string.generic_cancel_dialog_button_label, null)
                 .create();
         dialog.show();
     }
 
     /**
-     * Invoked when the positive button of the delete product confirmation dialog is clicked. It
+     * Invoked when the delete button of the delete product confirmation dialog is clicked. It
      * deletes the product corresponding with this activity. If the deletion operation fails, it
      * shows an error snackbar.
      */
-    private void onDeleteProductConfirmationDialogPositiveButtonClick(
-            DialogInterface dialog,
-            int which
-    ) {
+    private void onDeleteProductConfirmationDialogDeleteButtonClick() {
         int countRowsDeleted = getContentResolver().delete(selectedProductUri, null, null);
         if (countRowsDeleted == -1) {
             // Deletion failed.
@@ -289,10 +391,73 @@ public class DetailActivity extends AppCompatActivity implements
     }
 
     /**
+     * Invoked when the change photo button is clicked. It shows a dialog that presents change photo
+     * options.
+     */
+    private void onChangePhotoButtonClick() {
+        DialogInterface.OnClickListener onItemClickListener = (dialogInterface, which) -> {
+            switch (which) {
+                case TAKE_NEW_PHOTO_DIALOG_ITEM_ID:
+                    onTakeNewPhotoButtonClick();
+                    break;
+                case REMOVE_PHOTO_DIALOG_ITEM_ID:
+                    onRemovePhotoButtonClick();
+                    break;
+                case SELECT_NEW_PHOTO_DIALOG_ITEM_ID:
+                    onSelectNewPhotoButtonClick();
+                    break;
+            }
+        };
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setItems(R.array.change_photo_dialog_item_labels, onItemClickListener)
+                .setNegativeButton(R.string.generic_cancel_dialog_button_label, null)
+                .create();
+        dialog.show();
+    }
+
+    /**
+     * Invoked when the take new photo button is clicked. It launches an intent to the device's
+     * camera to take a photo. It puts the photo file in {@link #takePictureFile} and invokes
+     * {@link #onTakePictureActivityResult(boolean)} when done.
+     */
+    private void onTakeNewPhotoButtonClick() {
+        takePictureFile = createFile();
+        Uri takePictureUri = FileProvider.getUriForFile(
+                this,
+                FILE_PROVIDER_AUTHORITY,
+                takePictureFile
+        );
+        takePictureActivityResultLauncher.launch(takePictureUri);
+    }
+
+    /**
+     * Invoked when the remove photo button is clicked. It clears the stored photo for this product
+     * and shows the sample image in the UI.
+     */
+    private void onRemovePhotoButtonClick() {
+        picture = null;
+        showSampleImageInPhotoImageView(id);
+    }
+
+    /**
+     * Invoked when the select new photo button is clicked. It launches an intent to the device's
+     * gallery to pick a photo. It returns a URI to the selected photo in
+     * {@link #onPickVisualMediaActivityResult(Uri)} when done.
+     */
+    private void onSelectNewPhotoButtonClick() {
+        VisualMediaType mediaType = (VisualMediaType) ImageOnly.INSTANCE;
+        PickVisualMediaRequest request = new PickVisualMediaRequest.Builder()
+                .setMediaType(mediaType)
+                .build();
+        pickVisualMediaActivityResultLauncher.launch(request);
+    }
+
+    /**
      * Invoked when the decrement button is clicked. It decrements the quantity of the value in
      * {@link #quantityTextInputEditText} by 1 without letting the quantity fall below 0.
      */
-    private void onDecrementQuantityButtonClick(View view) {
+    private void onDecrementQuantityButtonClick() {
         Integer quantity = extractValueFromEditText(
                 quantityTextInputEditText,
                 QUANTITY_PATTERN,
@@ -311,7 +476,7 @@ public class DetailActivity extends AppCompatActivity implements
      * Invoked when the increment button is clicked. It increments the quantity of the value in
      * {@link #quantityTextInputEditText} by 1.
      */
-    private void onIncrementQuantityButtonClick(View view) {
+    private void onIncrementQuantityButtonClick() {
         Integer quantity = extractValueFromEditText(
                 quantityTextInputEditText,
                 QUANTITY_PATTERN,
@@ -328,10 +493,11 @@ public class DetailActivity extends AppCompatActivity implements
 
     /**
      * Invoked when the save product button is clicked. First, it validates the contents of the text
-     * fields. If an invalidation if found, a snackbar error is shown and execution stops. Then, it
-     * either adds a product or updates a product, depending on this activity's mode.
+     * fields. If an invalidation if found, a snackbar error is shown and execution stops. If no
+     * invalidation is found, it then either adds a product or updates a product, depending on this
+     * activity's mode.
      */
-    private void onSaveProductButtonClick(View view) {
+    private void onSaveProductButtonClick() {
 
         String name = extractValueFromEditText(
                 nameTextInputEditText,
@@ -353,14 +519,8 @@ public class DetailActivity extends AppCompatActivity implements
                 SUPPLIER_PATTERN,
                 String.class
         );
-        byte[] picture = extractValueFromEditText(
-                pictureTextInputEditText,
-                null,
-                byte[].class
-        );
 
-        if (name == null || price == null || quantity == null || supplier == null
-                || picture == null) {
+        if (name == null || price == null || quantity == null || supplier == null) {
             // A value could not be extracted or the value did not match its regular expression.
             showSnackbar(R.string.check_form_message);
             return;
@@ -399,6 +559,37 @@ public class DetailActivity extends AppCompatActivity implements
             }
         }
         finish();
+    }
+
+    /**
+     * Invoked when the activity started by {@link #takePictureActivityResultLauncher} finishes and
+     * control returns to this activity. If the previous activity successfully snapped a picture,
+     * it populates the image view with the picture.
+     *
+     * @param isSuccess Whether a picture was successfully snapped.
+     */
+    private void onTakePictureActivityResult(boolean isSuccess) {
+        if (!isSuccess) {
+            return;
+        }
+        picture = copyImageFileToByteArray(takePictureFile);
+        showImageInPhotoImageView(picture);
+    }
+
+    /**
+     * Invoked when the activity started by {@link #pickVisualMediaActivityResultLauncher} finishes
+     * and control returns to this activity. If the previous activity successfully picked a picture,
+     * it populates the image view with the picture.
+     *
+     * @param uri URI of the picked picture.
+     */
+    private void onPickVisualMediaActivityResult(@Nullable Uri uri) {
+        if (uri == null) {
+            return;
+        }
+        File file = copyImageUriToFile(uri);
+        picture = copyImageFileToByteArray(file);
+        showImageInPhotoImageView(picture);
     }
 
     /**
@@ -451,14 +642,6 @@ public class DetailActivity extends AppCompatActivity implements
             } catch (NumberFormatException e) {
                 return null;
             }
-        } else if (returnClass == byte[].class) {
-            try {
-                // Return value as byte[].
-                byte[] textByteArray = parseStringToBytes(textString);
-                return returnClass.cast(textByteArray);
-            } catch (NumberFormatException e) {
-                return null;
-            }
         } else {
             // Unsupported return class.
             return null;
@@ -466,40 +649,83 @@ public class DetailActivity extends AppCompatActivity implements
     }
 
     /**
-     * Returns the string representation of a dummy picture {@code byte[]} to display in
-     * {@link #pictureTextInputEditText}.
+     * Creates a new file in this app's private directory and returns an instance of it.
      *
-     * @return A dummy picture {@code byte[]} string representation.
+     * @return A new {@link File} instance.
      */
+    @SuppressLint("SimpleDateFormat")
     @NonNull
-    private String getRandomPictureValue() {
-        Random random = new Random(System.currentTimeMillis());
-        byte[] byteArray = new byte[]{
-                (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
-                (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
-                (byte) (random.nextInt((127 - (-128)) + 1) + (-128)),
-                (byte) (random.nextInt((127 - (-128)) + 1) + (-128))
-        };
-        return Arrays.toString(byteArray);
+    private File createFile() {
+        String timestamp = new SimpleDateFormat(FILE_TIMESTAMP_PATTERN).format(new Date());
+        String fileName = String.format(FILE_NAME, timestamp);
+        File fileDir = getFilesDir();
+        return new File(fileDir, fileName);
     }
 
     /**
-     * Parses the string representation of a {@code byte[]} into a {@code byte[]}.
+     * Copies the data at a given URI onto a new file in this app's private directory.
      *
-     * @param string String representation of a {@code byte[]}.
-     * @return {@code byte[]} parsed from the string.
+     * @param uri URI to copy from.
+     * @return A new {@link File} instance.
      */
     @NonNull
-    private byte[] parseStringToBytes(@NonNull String string) throws NumberFormatException {
-        string = string.replace(" ", "");
-        string = string.replace("[", "");
-        string = string.replace("]", "");
-        String[] byteStrings = string.split(",");
-
-        byte[] bytes = new byte[byteStrings.length];
-        for (int i = 0; i < byteStrings.length; i++) {
-            bytes[i] = Byte.parseByte(byteStrings[i]);
+    private File copyImageUriToFile(@NonNull Uri uri) {
+        File file = createFile();
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            OutputStream outputStream = new FileOutputStream(file);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
+            }
+            inputStream.close();
+            outputStream.close();
+        } catch (IOException e) {
+            Log.e(TAG, e.toString());
         }
-        return bytes;
+        return file;
+    }
+
+    /**
+     * Copies a file containing a picture to a {@code byte[]}.
+     *
+     * @param file  File to copy from.
+     * @return {@code byte[]} equivalent of the picture.
+     */
+    @NonNull
+    private byte[] copyImageFileToByteArray(@NonNull File file) {
+        String filePath = file.getAbsolutePath();
+        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+        return outputStream.toByteArray();
+    }
+
+    /**
+     * Displays a sample image resource in the given image view.
+     *
+     * @param id Used as a seed for picking a background color. Recommend to use this product's id
+     *           to keep the background color consistent.
+     */
+    private void showSampleImageInPhotoImageView(int id) {
+        photoImageView.setColorFilter(getColor(R.color.white));
+        int backgroundColorIndex = id % sampleImageBackgroundColors.length;
+        photoImageView.setBackgroundColor(sampleImageBackgroundColors[backgroundColorIndex]);
+
+        photoImageView.setImageResource(R.drawable.ic_sample_image);
+    }
+
+    /**
+     * Displays an image resource in the given image view.
+     *
+     * @param array {@code byte[]} representation of the image to display.
+     */
+    private void showImageInPhotoImageView(@NonNull byte[] array) {
+        photoImageView.setColorFilter(null);
+        photoImageView.setBackgroundColor(getColor(android.R.color.transparent));
+
+        Bitmap bitmap = BitmapFactory.decodeByteArray(array, 0, array.length);
+        photoImageView.setImageBitmap(bitmap);
     }
 }
