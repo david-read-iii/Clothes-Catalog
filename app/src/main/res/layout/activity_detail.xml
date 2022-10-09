@@ -169,6 +169,17 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Call supplier button. -->
+            <Button
+                android:id="@+id/call_supplier_button"
+                style="@style/SecondaryButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/call_supplier_button_content_description"
+                android:text="@string/call_supplier_button_label"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/supplier_phone_number_text_input_layout" />
+
             <!-- Supplier email field. -->
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/supplier_email_text_input_layout"
@@ -178,7 +189,7 @@
                 android:layout_marginTop="@dimen/detail_activity_views_vertical_margin"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/supplier_phone_number_text_input_layout"
+                app:layout_constraintTop_toBottomOf="@id/call_supplier_button"
                 app:startIconDrawable="@drawable/ic_email">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -189,6 +200,17 @@
                     android:inputType="textEmailAddress" />
 
             </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Email supplier button. -->
+            <Button
+                android:id="@+id/email_supplier_button"
+                style="@style/SecondaryButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/email_supplier_button_content_description"
+                android:text="@string/email_supplier_button_label"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/supplier_email_text_input_layout" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

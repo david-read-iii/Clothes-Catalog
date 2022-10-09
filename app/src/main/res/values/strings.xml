@@ -36,6 +36,10 @@
     <string name="increment_quantity_button_label">+</string>
     <string name="increment_quantity_button_tooltip">Increment quantity</string>
     <string name="increment_quantity_button_content_description">Increment this product\s quantity</string>
+    <string name="call_supplier_button_label">Call supplier</string>
+    <string name="call_supplier_button_content_description">Call this product\s supplier</string>
+    <string name="email_supplier_button_label">Email supplier</string>
+    <string name="email_supplier_button_content_description">Email this product\s supplier</string>
     <string name="save_product_button_tooltip">Save product</string>
     <string name="save_product_button_content_description">Save and close this product</string>
 
