@@ -10,13 +10,17 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType;
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.ImageOnly;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
@@ -41,6 +45,10 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -50,6 +58,11 @@ import java.util.Date;
  */
 public class DetailActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
+
+    /**
+     * Tag to use for logs in this class.
+     */
+    private static final String TAG = DetailActivity.class.getSimpleName();
 
     /**
      * Regular expressions that each text field should be matched with to be valid.
@@ -113,6 +126,11 @@ public class DetailActivity extends AppCompatActivity implements
     private File takePictureFile;
 
     /**
+     * Launches an activity to pick an image for the product.
+     */
+    private ActivityResultLauncher<PickVisualMediaRequest> pickVisualMediaActivityResultLauncher;
+
+    /**
      * Root view of the layout for animating the save product button when a snackbar appears.
      */
     private CoordinatorLayout detailCoordinatorLayout;
@@ -147,6 +165,11 @@ public class DetailActivity extends AppCompatActivity implements
         takePictureActivityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.TakePicture(),
                 this::onTakePictureActivityResult
+        );
+
+        pickVisualMediaActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.PickVisualMedia(),
+                this::onPickVisualMediaActivityResult
         );
 
         detailCoordinatorLayout = findViewById(R.id.detail_coordinator_layout);
@@ -418,15 +441,16 @@ public class DetailActivity extends AppCompatActivity implements
     }
 
     /**
-     * Invoked when the select new photo button is clicked. It does nothing for now.
+     * Invoked when the select new photo button is clicked. It launches an intent to the device's
+     * gallery to pick a photo. It returns a URI to the selected photo in
+     * {@link #onPickVisualMediaActivityResult(Uri)} when done.
      */
     private void onSelectNewPhotoButtonClick() {
-        // TODO: Launch intent to select a new photo with some Gallery API and put it in the ImageView.
-        Snackbar.make(
-                detailCoordinatorLayout,
-                "Launch intent to select a new photo with some Gallery API and put it in the ImageView",
-                BaseTransientBottomBar.LENGTH_SHORT
-        ).show();
+        VisualMediaType mediaType = (VisualMediaType) ImageOnly.INSTANCE;
+        PickVisualMediaRequest request = new PickVisualMediaRequest.Builder()
+                .setMediaType(mediaType)
+                .build();
+        pickVisualMediaActivityResultLauncher.launch(request);
     }
 
     /**
@@ -541,18 +565,31 @@ public class DetailActivity extends AppCompatActivity implements
      * Invoked when the activity started by {@link #takePictureActivityResultLauncher} finishes and
      * control returns to this activity. If the previous activity successfully snapped a picture,
      * it populates the image view with the picture.
+     *
+     * @param isSuccess Whether a picture was successfully snapped.
      */
     private void onTakePictureActivityResult(boolean isSuccess) {
-        if (isSuccess) {
-            String takePictureFilePath = takePictureFile.getAbsolutePath();
-            Bitmap takePictureBitmap = BitmapFactory.decodeFile(takePictureFilePath);
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            takePictureBitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-            picture = outputStream.toByteArray();
-            showImageInPhotoImageView(picture);
-        } else {
-            showSnackbar(R.string.take_picture_activity_failed_message);
+        if (!isSuccess) {
+            return;
         }
+        picture = copyImageFileToByteArray(takePictureFile);
+        showImageInPhotoImageView(picture);
+    }
+
+    /**
+     * Invoked when the activity started by {@link #pickVisualMediaActivityResultLauncher} finishes
+     * and control returns to this activity. If the previous activity successfully picked a picture,
+     * it populates the image view with the picture.
+     *
+     * @param uri URI of the picked picture.
+     */
+    private void onPickVisualMediaActivityResult(@Nullable Uri uri) {
+        if (uri == null) {
+            return;
+        }
+        File file = copyImageUriToFile(uri);
+        picture = copyImageFileToByteArray(file);
+        showImageInPhotoImageView(picture);
     }
 
     /**
@@ -623,6 +660,46 @@ public class DetailActivity extends AppCompatActivity implements
         String fileName = String.format(FILE_NAME, timestamp);
         File fileDir = getFilesDir();
         return new File(fileDir, fileName);
+    }
+
+    /**
+     * Copies the data at a given URI onto a new file in this app's private directory.
+     *
+     * @param uri URI to copy from.
+     * @return A new {@link File} instance.
+     */
+    @NonNull
+    private File copyImageUriToFile(@NonNull Uri uri) {
+        File file = createFile();
+        try {
+            InputStream inputStream = getContentResolver().openInputStream(uri);
+            OutputStream outputStream = new FileOutputStream(file);
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
+            }
+            inputStream.close();
+            outputStream.close();
+        } catch (IOException e) {
+            Log.e(TAG, e.toString());
+        }
+        return file;
+    }
+
+    /**
+     * Copies a file containing a picture to a {@code byte[]}.
+     *
+     * @param file  File to copy from.
+     * @return {@code byte[]} equivalent of the picture.
+     */
+    @NonNull
+    private byte[] copyImageFileToByteArray(@NonNull File file) {
+        String filePath = file.getAbsolutePath();
+        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
+        return outputStream.toByteArray();
     }
 
     /**
