@@ -47,10 +47,14 @@
     <string name="price_hint">Price</string>
     <string name="quantity_hint">Quantity</string>
     <string name="supplier_hint">Supplier</string>
+    <string name="supplier_phone_number_hint">Supplier Phone Number</string>
+    <string name="supplier_email_hint">Supplier Email</string>
 
     <!-- EditText error messages. -->
     <string name="text_invalid_error_message">Enter a value between 1 and 250 characters</string>
     <string name="number_invalid_error_message">Enter a value between 1 and 9 digits</string>
+    <string name="phone_number_invalid_error_message">Enter a valid phone number</string>
+    <string name="email_invalid_error_message">Enter a valid email address</string>
 
     <!-- Dialog strings. -->
     <string name="delete_all_products_confirmation_dialog_message">Delete all products?</string>
