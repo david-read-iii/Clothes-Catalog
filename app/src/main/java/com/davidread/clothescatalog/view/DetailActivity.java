@@ -569,12 +569,11 @@ public class DetailActivity extends AppCompatActivity implements
      * @param isSuccess Whether a picture was successfully snapped.
      */
     private void onTakePictureActivityResult(boolean isSuccess) {
-        if (isSuccess) {
-            picture = copyImageFileToByteArray(takePictureFile);
-            showImageInPhotoImageView(picture);
-        } else {
-            showSnackbar(R.string.take_picture_activity_failed_message);
+        if (!isSuccess) {
+            return;
         }
+        picture = copyImageFileToByteArray(takePictureFile);
+        showImageInPhotoImageView(picture);
     }
 
     /**
@@ -586,7 +585,6 @@ public class DetailActivity extends AppCompatActivity implements
      */
     private void onPickVisualMediaActivityResult(@Nullable Uri uri) {
         if (uri == null) {
-            showSnackbar(R.string.pick_visual_media_activity_failed_message);
             return;
         }
         File file = copyImageUriToFile(uri);
