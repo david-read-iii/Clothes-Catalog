@@ -96,7 +96,7 @@ public class ProductProvider extends ContentProvider {
     public Uri insert(@NonNull Uri uri, @NonNull ContentValues values) {
 
         // Return null if ContentValues are invalid.
-        if (values.size() != 5 || !hasValidContentValues(values)) {
+        if (values.size() != 7 || !hasValidContentValues(values)) {
             return null;
         }
 
@@ -342,6 +342,26 @@ public class ProductProvider extends ContentProvider {
             Object supplier = values.get(ProductContract.ProductEntry.COLUMN_SUPPLIER);
             if (!(supplier instanceof String)
                     || ((String) supplier).isEmpty()) {
+                return false;
+            }
+        }
+
+        // Supplier phone number must be a non-negative Integer.
+        if (values.containsKey(ProductContract.ProductEntry.COLUMN_SUPPLIER_PHONE_NUMBER)) {
+            Object supplierPhoneNumber = values.get(
+                    ProductContract.ProductEntry.COLUMN_SUPPLIER_PHONE_NUMBER
+            );
+            if (!(supplierPhoneNumber instanceof Integer)
+                    || ((Integer) supplierPhoneNumber) < 0) {
+                return false;
+            }
+        }
+
+        // Supplier email must be a nonempty String.
+        if (values.containsKey(ProductContract.ProductEntry.COLUMN_SUPPLIER_EMAIL)) {
+            Object supplierEmail = values.get(ProductContract.ProductEntry.COLUMN_SUPPLIER_EMAIL);
+            if (!(supplierEmail instanceof String)
+                    || ((String) supplierEmail).isEmpty()) {
                 return false;
             }
         }
