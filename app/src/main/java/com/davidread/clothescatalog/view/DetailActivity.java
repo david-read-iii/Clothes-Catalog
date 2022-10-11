@@ -1,6 +1,7 @@
 package com.davidread.clothescatalog.view;
 
 import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -75,6 +76,16 @@ public class DetailActivity extends AppCompatActivity implements
     private static final String PRICE_PATTERN = "^\\d{1,9}$";
     private static final String QUANTITY_PATTERN = "^\\d{1,9}$";
     private static final String SUPPLIER_PATTERN = "^.{1,250}$";
+
+    /**
+     * Format of a phone number uri for a phone intent.
+     */
+    private static final String PHONE_NUMBER_URI_FORMAT = "tel:%1$s";
+
+    /**
+     * Format of an email address uri for an email intent.
+     */
+    private static final String EMAIL_URI_FORMAT = "mailto:";
 
     /**
      * Ids for identifying which dialog item is clicked in {@link #onChangePhotoButtonClick()}.
@@ -239,6 +250,10 @@ public class DetailActivity extends AppCompatActivity implements
         Button incrementQuantityButton = findViewById(R.id.increment_quantity_button);
         incrementQuantityButton.setOnClickListener((view) -> onIncrementQuantityButtonClick());
         TooltipCompat.setTooltipText(incrementQuantityButton, getString(R.string.increment_quantity_button_tooltip));
+        Button callSupplierButton = findViewById(R.id.call_supplier_button);
+        callSupplierButton.setOnClickListener((view) -> onCallSupplierButtonClick());
+        Button emailSupplierButton = findViewById(R.id.email_supplier_button);
+        emailSupplierButton.setOnClickListener((view) -> onEmailSupplierButtonClick());
 
         FloatingActionButton saveProductButton = findViewById(R.id.save_product_button);
         saveProductButton.setOnClickListener((view) -> onSaveProductButtonClick());
@@ -530,6 +545,67 @@ public class DetailActivity extends AppCompatActivity implements
     }
 
     /**
+     * Invoked when the call supplier button is clicked. It starts an implicit intent to the
+     * device's phone app to call the supplier phone number associated with this product.
+     */
+    private void onCallSupplierButtonClick() {
+        String supplierPhoneNumber = extractPhoneNumberFromEditText(
+                supplierPhoneNumberTextInputEditText
+        );
+        if (supplierPhoneNumber == null) {
+            // Phone number could not be extracted or is not a valid phone number.
+            showSnackbar(R.string.check_form_message);
+            return;
+        }
+        String uriString = String.format(PHONE_NUMBER_URI_FORMAT, supplierPhoneNumber);
+        Intent intent = new Intent(Intent.ACTION_DIAL);
+        intent.setData(Uri.parse(uriString));
+        try {
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            showSnackbar(R.string.no_phone_app_message);
+            Log.e(TAG, e.toString());
+        }
+    }
+
+    /**
+     * Invoked when the email supplier button is clicked. It starts an implicit intent to the
+     * device's email app to draft an email to the supplier email associated with this product.
+     */
+    private void onEmailSupplierButtonClick() {
+        String name = extractValueFromEditText(
+                nameTextInputEditText,
+                NAME_PATTERN,
+                String.class
+        );
+        Integer quantity = extractValueFromEditText(
+                quantityTextInputEditText,
+                QUANTITY_PATTERN,
+                Integer.class
+        );
+        String supplierEmail = extractEmailFromEditText(supplierEmailTextInputEditText);
+        if (name == null || quantity == null || supplierEmail == null) {
+            // A value could not be extracted or the value did not match its regular expression.
+            showSnackbar(R.string.check_form_message);
+            return;
+        }
+        String subject = getString(R.string.email_supplier_subject, name);
+        String message = getString(R.string.email_supplier_message, name, quantity);
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setData(Uri.parse(EMAIL_URI_FORMAT));
+        intent.putExtra(Intent.EXTRA_EMAIL, new String[]{supplierEmail});
+        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        intent.putExtra(Intent.EXTRA_TEXT, message);
+        try {
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            showSnackbar(R.string.no_email_app_message);
+            Log.e(TAG, e.toString());
+        }
+    }
+
+    /**
      * Invoked when the save product button is clicked. First, it validates the contents of the text
      * fields. If an invalidation if found, a snackbar error is shown and execution stops. If no
      * invalidation is found, it then either adds a product or updates a product, depending on this
@@ -703,7 +779,7 @@ public class DetailActivity extends AppCompatActivity implements
      * return the phone number if it is valid and if no conversion errors occur. Otherwise, it will
      * return {@code null}.
      *
-     * @param editText    Edit text to extract from.
+     * @param editText Edit text to extract from.
      * @return The phone number from the edit text. {@code null} if an invalid phone number was
      * contained or if some conversion error occurs.
      */
@@ -729,7 +805,7 @@ public class DetailActivity extends AppCompatActivity implements
      * the email address if it is valid and if no conversion errors occur. Otherwise, it will return
      * {@code null}.
      *
-     * @param editText    Edit text to extract from.
+     * @param editText Edit text to extract from.
      * @return The email address from the edit text. {@code null} if an invalid email address was
      * contained or if some conversion error occurs.
      */
@@ -792,7 +868,7 @@ public class DetailActivity extends AppCompatActivity implements
     /**
      * Copies a file containing a picture to a {@code byte[]}.
      *
-     * @param file  File to copy from.
+     * @param file File to copy from.
      * @return {@code byte[]} equivalent of the picture.
      */
     @NonNull
