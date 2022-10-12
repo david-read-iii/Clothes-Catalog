@@ -13,6 +13,8 @@
     <string name="delete_product_failed_message">Failed to delete this product</string>
     <string name="delete_all_products_failed_message">Failed to delete all products</string>
     <string name="check_form_message">Check form for empty fields or errors</string>
+    <string name="no_phone_app_message">Download a phone app to dial this call</string>
+    <string name="no_email_app_message">Download an email app to send this message</string>
 
     <!-- Action bar labels. -->
     <string name="action_add_dummy_product_label">Add a dummy product</string>
@@ -36,6 +38,10 @@
     <string name="increment_quantity_button_label">+</string>
     <string name="increment_quantity_button_tooltip">Increment quantity</string>
     <string name="increment_quantity_button_content_description">Increment this product\s quantity</string>
+    <string name="call_supplier_button_label">Call supplier</string>
+    <string name="call_supplier_button_content_description">Call this product\s supplier</string>
+    <string name="email_supplier_button_label">Email supplier</string>
+    <string name="email_supplier_button_content_description">Email this product\s supplier</string>
     <string name="save_product_button_tooltip">Save product</string>
     <string name="save_product_button_content_description">Save and close this product</string>
 
@@ -66,5 +72,9 @@
         <item>Remove photo</item>
         <item>Select new photo</item>
     </array>
+
+    <!-- Supplier email strings. -->
+    <string name="email_supplier_subject">Request for more \"%1$s\"</string>
+    <string name="email_supplier_message">Hello,\n\nI am requesting more of the product \"%1$s\" in the next shipment. We only have %2$d left in stock.\n\nSent from Clothes Catalog app.</string>
 
 </resources>
