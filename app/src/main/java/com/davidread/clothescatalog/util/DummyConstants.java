@@ -37,11 +37,11 @@ public final class DummyConstants {
     /**
      * Dummy supplier values.
      */
-    public static final String[] DUMMY_SUPPLIERS = {
-            "Grainger Industrial Supply",
-            "Hudson Wholesale Inc.",
-            "Regards Wholesale",
-            "Garment Center Supplier Association",
-            "eFashion Wholesale"
+    public static final String[][] DUMMY_SUPPLIERS = {
+            {"Grainger Industrial Supply", "603-413-4124", "support@gis.com"},
+            {"Hudson Wholesale Inc.", "605-475-6964", "order.more@hudsonwholesale.com"},
+            {"Regards Wholesale", "605-475-6958", "getmore@regards.com"},
+            {"Garment Center Supplier Association", "212-479-7990", "contactus@gcsa.com"},
+            {"eFashion Wholesale", "605-475-6959", "sales@efashion.com"}
     };
 }

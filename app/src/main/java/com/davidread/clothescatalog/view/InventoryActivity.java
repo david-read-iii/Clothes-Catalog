@@ -300,9 +300,18 @@ public class InventoryActivity extends AppCompatActivity implements
         );
         values.put(ProductContract.ProductEntry.COLUMN_PRICE, random.nextInt(10000));
         values.put(ProductContract.ProductEntry.COLUMN_QUANTITY, random.nextInt(1000));
+        int supplierIndex = random.nextInt(DummyConstants.DUMMY_SUPPLIERS.length);
         values.put(
                 ProductContract.ProductEntry.COLUMN_SUPPLIER,
-                DummyConstants.DUMMY_SUPPLIERS[random.nextInt(DummyConstants.DUMMY_SUPPLIERS.length)]
+                DummyConstants.DUMMY_SUPPLIERS[supplierIndex][0]
+        );
+        values.put(
+                ProductContract.ProductEntry.COLUMN_SUPPLIER_PHONE_NUMBER,
+                DummyConstants.DUMMY_SUPPLIERS[supplierIndex][1]
+        );
+        values.put(
+                ProductContract.ProductEntry.COLUMN_SUPPLIER_EMAIL,
+                DummyConstants.DUMMY_SUPPLIERS[supplierIndex][2]
         );
         values.put(ProductContract.ProductEntry.COLUMN_PICTURE, (byte[]) null);
         return values;
