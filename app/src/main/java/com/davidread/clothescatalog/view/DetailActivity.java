@@ -39,6 +39,7 @@ import androidx.loader.content.Loader;
 import com.davidread.clothescatalog.BuildConfig;
 import com.davidread.clothescatalog.R;
 import com.davidread.clothescatalog.database.ProductContract;
+import com.davidread.clothescatalog.database.ProductProviderUtils;
 import com.davidread.clothescatalog.util.EmailTextWatcher;
 import com.davidread.clothescatalog.util.PhoneNumberTextWatcher;
 import com.davidread.clothescatalog.util.RegexTextWatcher;
@@ -73,7 +74,7 @@ public class DetailActivity extends AppCompatActivity implements
      * Regular expressions that each text field should be matched with to be valid.
      */
     private static final String NAME_PATTERN = "^.{1,250}$";
-    private static final String PRICE_PATTERN = "^\\d{1,9}$";
+    private static final String PRICE_PATTERN = "^\\d{1,7}[.]\\d\\d$";
     private static final String QUANTITY_PATTERN = "^\\d{1,9}$";
     private static final String SUPPLIER_PATTERN = "^.{1,250}$";
 
@@ -212,13 +213,13 @@ public class DetailActivity extends AppCompatActivity implements
         TextInputLayout priceTextInputLayout = findViewById(R.id.price_text_input_layout);
         priceTextInputEditText.addTextChangedListener(new RegexTextWatcher(
                 PRICE_PATTERN,
-                getString(R.string.number_invalid_error_message),
+                getString(R.string.price_invalid_error_message),
                 priceTextInputLayout
         ));
         TextInputLayout quantityTextInputLayout = findViewById(R.id.quantity_text_input_layout);
         quantityTextInputEditText.addTextChangedListener(new RegexTextWatcher(
                 QUANTITY_PATTERN,
-                getString(R.string.number_invalid_error_message),
+                getString(R.string.quantity_invalid_error_message),
                 quantityTextInputLayout
         ));
         TextInputLayout supplierTextInputLayout = findViewById(R.id.supplier_text_input_layout);
@@ -356,7 +357,6 @@ public class DetailActivity extends AppCompatActivity implements
 
         int idColumnIndex = data.getColumnIndex(ProductContract.ProductEntry._ID);
         int nameColumnIndex = data.getColumnIndex(ProductContract.ProductEntry.COLUMN_NAME);
-        int priceColumnIndex = data.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRICE);
         int quantityColumnIndex = data.getColumnIndex(ProductContract.ProductEntry.COLUMN_QUANTITY);
         int supplierColumnIndex = data.getColumnIndex(ProductContract.ProductEntry.COLUMN_SUPPLIER);
         int supplierPhoneNumberColumnIndex = data.getColumnIndex(
@@ -369,7 +369,7 @@ public class DetailActivity extends AppCompatActivity implements
 
         id = data.getInt(idColumnIndex);
         String name = data.getString(nameColumnIndex);
-        String price = data.getString(priceColumnIndex);
+        String price = ProductProviderUtils.getDecimalFormatPrice(data);
         String quantity = data.getString(quantityColumnIndex);
         String supplier = data.getString(supplierColumnIndex);
         String supplierPhoneNumber = data.getString(supplierPhoneNumberColumnIndex);
@@ -513,7 +513,7 @@ public class DetailActivity extends AppCompatActivity implements
     private void onDecrementQuantityButtonClick() {
         Integer quantity = extractValueFromEditText(
                 quantityTextInputEditText,
-                QUANTITY_PATTERN,
+                null,
                 Integer.class
         );
         if (quantity == null || quantity <= 0) {
@@ -527,16 +527,16 @@ public class DetailActivity extends AppCompatActivity implements
 
     /**
      * Invoked when the increment button is clicked. It increments the quantity of the value in
-     * {@link #quantityTextInputEditText} by 1.
+     * {@link #quantityTextInputEditText} by 1 without letting the quantity fall above 999,999,999.
      */
     private void onIncrementQuantityButtonClick() {
         Integer quantity = extractValueFromEditText(
                 quantityTextInputEditText,
-                QUANTITY_PATTERN,
+                null,
                 Integer.class
         );
-        if (quantity == null) {
-            // No quantity was in the text field.
+        if (quantity == null || quantity >= 999999999) {
+            // No quantity was in the text field or quantity cannot be incremented any further.
             return;
         }
         quantity++;
@@ -618,10 +618,10 @@ public class DetailActivity extends AppCompatActivity implements
                 NAME_PATTERN,
                 String.class
         );
-        Integer price = extractValueFromEditText(
+        Double price = extractValueFromEditText(
                 priceTextInputEditText,
                 PRICE_PATTERN,
-                Integer.class
+                Double.class
         );
         Integer quantity = extractValueFromEditText(
                 quantityTextInputEditText,
@@ -652,7 +652,7 @@ public class DetailActivity extends AppCompatActivity implements
 
         ContentValues values = new ContentValues();
         values.put(ProductContract.ProductEntry.COLUMN_NAME, name);
-        values.put(ProductContract.ProductEntry.COLUMN_PRICE, price);
+        ProductProviderUtils.putPrice(values, price);
         values.put(ProductContract.ProductEntry.COLUMN_QUANTITY, quantity);
         values.put(ProductContract.ProductEntry.COLUMN_SUPPLIER, supplier);
         values.put(ProductContract.ProductEntry.COLUMN_SUPPLIER_PHONE_NUMBER, supplierPhoneNumber);
@@ -737,8 +737,8 @@ public class DetailActivity extends AppCompatActivity implements
      *                    matching should be done.
      * @param returnClass Class type to convert the extracted value to. Accepts only {@link String}
      *                    and {@link Integer} so far.
-     * @param <T>         Class type to convert the extracted value to. Accepts only {@link String}
-     *                    and {@link Integer} so far.
+     * @param <T>         Class type to convert the extracted value to. Accepts only {@link String},
+     *                    {@link Integer}, and {@link Double} so far.
      * @return The value from the edit text. {@code null} if regular expression matching fails or
      * if some conversion error occurs.
      */
@@ -765,6 +765,14 @@ public class DetailActivity extends AppCompatActivity implements
                 // Return value as Integer.
                 int textInteger = Integer.parseInt(textString);
                 return returnClass.cast(textInteger);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        } else if (returnClass == Double.class) {
+            try {
+                // Return value as Double.
+                double textDouble = Double.parseDouble(textString);
+                return returnClass.cast(textDouble);
             } catch (NumberFormatException e) {
                 return null;
             }

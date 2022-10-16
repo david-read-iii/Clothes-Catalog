@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.davidread.clothescatalog.R;
 import com.davidread.clothescatalog.database.ProductContract;
+import com.davidread.clothescatalog.database.ProductProviderUtils;
 
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
@@ -87,10 +88,9 @@ public class ProductCursorAdapter extends RecyclerView.Adapter<ProductCursorAdap
     public void onBindViewHolder(@NonNull ProductCursorAdapter.ProductViewHolder holder, int position) {
         cursor.moveToPosition(position);
         int nameColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_NAME);
-        int priceColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_PRICE);
         int quantityColumnIndex = cursor.getColumnIndex(ProductContract.ProductEntry.COLUMN_QUANTITY);
         String name = cursor.getString(nameColumnIndex);
-        String price = cursor.getString(priceColumnIndex);
+        String price = ProductProviderUtils.getCurrencyFormatPrice(cursor);
         String quantity = cursor.getString(quantityColumnIndex);
 
         holder.getNameTextView().setText(name);
