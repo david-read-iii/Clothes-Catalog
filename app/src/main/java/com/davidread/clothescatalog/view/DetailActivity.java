@@ -74,7 +74,7 @@ public class DetailActivity extends AppCompatActivity implements
      * Regular expressions that each text field should be matched with to be valid.
      */
     private static final String NAME_PATTERN = "^.{1,250}$";
-    private static final String PRICE_PATTERN = "^\\d{1,7}[.]\\d\\d$";
+    private static final String PRICE_PATTERN = "^\\d{1,7}[.]\\d{1,2}$";
     private static final String QUANTITY_PATTERN = "^\\d{1,9}$";
     private static final String SUPPLIER_PATTERN = "^.{1,250}$";
 
