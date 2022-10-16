@@ -513,7 +513,7 @@ public class DetailActivity extends AppCompatActivity implements
     private void onDecrementQuantityButtonClick() {
         Integer quantity = extractValueFromEditText(
                 quantityTextInputEditText,
-                QUANTITY_PATTERN,
+                null,
                 Integer.class
         );
         if (quantity == null || quantity <= 0) {
@@ -527,16 +527,16 @@ public class DetailActivity extends AppCompatActivity implements
 
     /**
      * Invoked when the increment button is clicked. It increments the quantity of the value in
-     * {@link #quantityTextInputEditText} by 1.
+     * {@link #quantityTextInputEditText} by 1 without letting the quantity fall above 999,999,999.
      */
     private void onIncrementQuantityButtonClick() {
         Integer quantity = extractValueFromEditText(
                 quantityTextInputEditText,
-                QUANTITY_PATTERN,
+                null,
                 Integer.class
         );
-        if (quantity == null) {
-            // No quantity was in the text field.
+        if (quantity == null || quantity >= 999999999) {
+            // No quantity was in the text field or quantity cannot be incremented any further.
             return;
         }
         quantity++;
