@@ -328,7 +328,7 @@ public class DetailActivity extends AppCompatActivity implements
                 ProductContract.ProductEntry.COLUMN_SUPPLIER,
                 ProductContract.ProductEntry.COLUMN_SUPPLIER_PHONE_NUMBER,
                 ProductContract.ProductEntry.COLUMN_SUPPLIER_EMAIL,
-                ProductContract.ProductEntry.COLUMN_PICTURE
+                ProductContract.ProductEntry.COLUMN_PICTURE_PATH
         };
         return new CursorLoader(
                 this,
@@ -365,7 +365,7 @@ public class DetailActivity extends AppCompatActivity implements
         int supplierEmailColumnIndex = data.getColumnIndex(
                 ProductContract.ProductEntry.COLUMN_SUPPLIER_EMAIL
         );
-        int pictureColumnIndex = data.getColumnIndex(ProductContract.ProductEntry.COLUMN_PICTURE);
+        int pictureColumnIndex = data.getColumnIndex(ProductContract.ProductEntry.COLUMN_PICTURE_PATH);
 
         id = data.getInt(idColumnIndex);
         String name = data.getString(nameColumnIndex);
@@ -657,7 +657,7 @@ public class DetailActivity extends AppCompatActivity implements
         values.put(ProductContract.ProductEntry.COLUMN_SUPPLIER, supplier);
         values.put(ProductContract.ProductEntry.COLUMN_SUPPLIER_PHONE_NUMBER, supplierPhoneNumber);
         values.put(ProductContract.ProductEntry.COLUMN_SUPPLIER_EMAIL, supplierEmail);
-        values.put(ProductContract.ProductEntry.COLUMN_PICTURE, picture);
+        values.put(ProductContract.ProductEntry.COLUMN_PICTURE_PATH, picture);
 
         if (selectedProductUri == null) {
             // Add a product.
