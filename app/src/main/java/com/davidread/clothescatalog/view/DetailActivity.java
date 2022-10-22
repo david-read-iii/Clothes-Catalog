@@ -10,7 +10,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.telephony.PhoneNumberUtils;
 import android.text.Editable;
 import android.util.Log;
 import android.util.Patterns;
@@ -40,8 +39,6 @@ import com.davidread.clothescatalog.BuildConfig;
 import com.davidread.clothescatalog.R;
 import com.davidread.clothescatalog.database.ProductContract;
 import com.davidread.clothescatalog.database.ProductProviderUtils;
-import com.davidread.clothescatalog.util.EmailTextWatcher;
-import com.davidread.clothescatalog.util.PhoneNumberTextWatcher;
 import com.davidread.clothescatalog.util.RegexTextWatcher;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -76,6 +73,8 @@ public class DetailActivity extends AppCompatActivity implements
     private static final String PRICE_PATTERN = "^\\d{1,7}(|[.]\\d{1,2})$";
     private static final String QUANTITY_PATTERN = "^\\d{1,9}$";
     private static final String SUPPLIER_PATTERN = "^.{1,250}$";
+    private static final String SUPPLIER_PHONE_NUMBER_PATTERN = Patterns.PHONE.toString();
+    private static final String SUPPLIER_EMAIL_PATTERN = Patterns.EMAIL_ADDRESS.toString();
 
     /**
      * Format of a phone number uri for a phone intent.
@@ -238,14 +237,16 @@ public class DetailActivity extends AppCompatActivity implements
         TextInputLayout supplierPhoneNumberTextInputLayout = findViewById(
                 R.id.supplier_phone_number_text_input_layout
         );
-        supplierPhoneNumberTextInputEditText.addTextChangedListener(new PhoneNumberTextWatcher(
+        supplierPhoneNumberTextInputEditText.addTextChangedListener(new RegexTextWatcher(
+                SUPPLIER_PHONE_NUMBER_PATTERN,
                 getString(R.string.phone_number_invalid_error_message),
                 supplierPhoneNumberTextInputLayout
         ));
         TextInputLayout supplierEmailTextInputLayout = findViewById(
                 R.id.supplier_email_text_input_layout
         );
-        supplierEmailTextInputEditText.addTextChangedListener(new EmailTextWatcher(
+        supplierEmailTextInputEditText.addTextChangedListener(new RegexTextWatcher(
+                SUPPLIER_EMAIL_PATTERN,
                 getString(R.string.email_invalid_error_message),
                 supplierEmailTextInputLayout
         ));
@@ -560,8 +561,10 @@ public class DetailActivity extends AppCompatActivity implements
      * device's phone app to call the supplier phone number associated with this product.
      */
     private void onCallSupplierButtonClick() {
-        String supplierPhoneNumber = extractPhoneNumberFromEditText(
-                supplierPhoneNumberTextInputEditText
+        String supplierPhoneNumber = extractValueFromEditText(
+                supplierPhoneNumberTextInputEditText,
+                SUPPLIER_PHONE_NUMBER_PATTERN,
+                String.class
         );
         if (supplierPhoneNumber == null) {
             // Phone number could not be extracted or is not a valid phone number.
@@ -594,7 +597,11 @@ public class DetailActivity extends AppCompatActivity implements
                 QUANTITY_PATTERN,
                 Integer.class
         );
-        String supplierEmail = extractEmailFromEditText(supplierEmailTextInputEditText);
+        String supplierEmail = extractValueFromEditText(
+                supplierEmailTextInputEditText,
+                SUPPLIER_EMAIL_PATTERN,
+                String.class
+        );
         if (name == null || quantity == null || supplierEmail == null) {
             // A value could not be extracted or the value did not match its regular expression.
             showSnackbar(R.string.check_form_message);
@@ -644,10 +651,16 @@ public class DetailActivity extends AppCompatActivity implements
                 SUPPLIER_PATTERN,
                 String.class
         );
-        String supplierPhoneNumber = extractPhoneNumberFromEditText(
-                supplierPhoneNumberTextInputEditText
+        String supplierPhoneNumber = extractValueFromEditText(
+                supplierPhoneNumberTextInputEditText,
+                SUPPLIER_PHONE_NUMBER_PATTERN,
+                String.class
         );
-        String supplierEmail = extractEmailFromEditText(supplierEmailTextInputEditText);
+        String supplierEmail = extractValueFromEditText(
+                supplierEmailTextInputEditText,
+                SUPPLIER_EMAIL_PATTERN,
+                String.class
+        );
 
         if (name == null
                 || price == null
@@ -738,10 +751,6 @@ public class DetailActivity extends AppCompatActivity implements
         Snackbar.make(detailCoordinatorLayout, resId, BaseTransientBottomBar.LENGTH_SHORT).show();
     }
 
-    private void saveProduct() {
-
-    }
-
     /**
      * Extracts the value from an edit text and returns it as some given class type. It will only
      * return the value if the value matches some given regular expression and if no conversion
@@ -793,58 +802,6 @@ public class DetailActivity extends AppCompatActivity implements
             }
         } else {
             // Unsupported return class.
-            return null;
-        }
-    }
-
-    /**
-     * Extracts the phone number from an edit text and returns it as a string. It will only
-     * return the phone number if it is valid and if no conversion errors occur. Otherwise, it will
-     * return {@code null}.
-     *
-     * @param editText Edit text to extract from.
-     * @return The phone number from the edit text. {@code null} if an invalid phone number was
-     * contained or if some conversion error occurs.
-     */
-    @Nullable
-    private String extractPhoneNumberFromEditText(@NonNull TextInputEditText editText) {
-        // Extract String from EditText.
-        Editable textEditable = editText.getText();
-        if (textEditable == null) {
-            return null;
-        }
-        String textString = textEditable.toString();
-        if (PhoneNumberUtils.isGlobalPhoneNumber(textString)) {
-            // Valid phone number.
-            return textString;
-        } else {
-            // Invalid phone number.
-            return null;
-        }
-    }
-
-    /**
-     * Extracts the email address from an edit text and returns it as a string. It will only return
-     * the email address if it is valid and if no conversion errors occur. Otherwise, it will return
-     * {@code null}.
-     *
-     * @param editText Edit text to extract from.
-     * @return The email address from the edit text. {@code null} if an invalid email address was
-     * contained or if some conversion error occurs.
-     */
-    @Nullable
-    private String extractEmailFromEditText(@NonNull TextInputEditText editText) {
-        // Extract String from EditText.
-        Editable textEditable = editText.getText();
-        if (textEditable == null) {
-            return null;
-        }
-        String textString = textEditable.toString();
-        if (Patterns.EMAIL_ADDRESS.matcher(textString).matches()) {
-            // Valid email address.
-            return textString;
-        } else {
-            // Invalid email address.
             return null;
         }
     }
