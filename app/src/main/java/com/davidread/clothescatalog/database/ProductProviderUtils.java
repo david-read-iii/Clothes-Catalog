@@ -10,6 +10,10 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Locale;
 
+/**
+ * A class that provides util functions for accessing and modifying the price of a product in
+ * the product provider.
+ */
 public final class ProductProviderUtils {
 
     private ProductProviderUtils() {
