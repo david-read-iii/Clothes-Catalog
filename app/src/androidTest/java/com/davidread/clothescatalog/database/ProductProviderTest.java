@@ -54,7 +54,7 @@ public class ProductProviderTest {
         values.put(ProductContract.ProductEntry.COLUMN_PRICE, 1000);
         values.put(ProductContract.ProductEntry.COLUMN_QUANTITY, 10);
         values.put(ProductContract.ProductEntry.COLUMN_SUPPLIER, "Garment District");
-        values.put(ProductContract.ProductEntry.COLUMN_PICTURE, new byte[]{0, 1, 2, 3});
+        values.put(ProductContract.ProductEntry.COLUMN_PICTURE_PATH, new byte[]{0, 1, 2, 3});
 
         Uri insertUri = contentResolver.insert(ProductContract.ProductEntry.CONTENT_URI, values);
 
@@ -82,7 +82,7 @@ public class ProductProviderTest {
         values.put(ProductContract.ProductEntry.COLUMN_PRICE, -23);
         values.put(ProductContract.ProductEntry.COLUMN_QUANTITY, 55);
         values.put(ProductContract.ProductEntry.COLUMN_SUPPLIER, "Bed Bath and Beyond");
-        values.put(ProductContract.ProductEntry.COLUMN_PICTURE, new byte[]{4, 5, 6, 7});
+        values.put(ProductContract.ProductEntry.COLUMN_PICTURE_PATH, new byte[]{4, 5, 6, 7});
 
         Uri insertUri1 = contentResolver.insert(ProductContract.ProductEntry.CONTENT_URI, values1);
 
@@ -115,7 +115,7 @@ public class ProductProviderTest {
     public void update_ValidValues_ReturnsNotError() {
 
         ContentValues values = new ContentValues();
-        values.put(ProductContract.ProductEntry.COLUMN_PICTURE, new byte[]{8, 9, 10, 11});
+        values.put(ProductContract.ProductEntry.COLUMN_PICTURE_PATH, new byte[]{8, 9, 10, 11});
 
         int countRowsUpdated = contentResolver.update(
                 ProductContract.ProductEntry.CONTENT_URI,

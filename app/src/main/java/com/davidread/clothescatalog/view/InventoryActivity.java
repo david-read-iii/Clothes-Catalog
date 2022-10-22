@@ -313,7 +313,7 @@ public class InventoryActivity extends AppCompatActivity implements
                 ProductContract.ProductEntry.COLUMN_SUPPLIER_EMAIL,
                 DummyConstants.DUMMY_SUPPLIERS[supplierIndex][2]
         );
-        values.put(ProductContract.ProductEntry.COLUMN_PICTURE, (byte[]) null);
+        values.put(ProductContract.ProductEntry.COLUMN_PICTURE_PATH, (byte[]) null);
         return values;
     }
 

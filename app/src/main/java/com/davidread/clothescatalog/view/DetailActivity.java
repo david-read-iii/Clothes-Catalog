@@ -49,7 +49,6 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -114,6 +113,12 @@ public class DetailActivity extends AppCompatActivity implements
     private Uri selectedProductUri;
 
     /**
+     * Whether the loader has already done an initial load of data. Keeping track of this stops
+     * subsequent loads from occurring when this activity is navigated to and from.
+     */
+    private boolean isLoadDone;
+
+    /**
      * Contains background colors to apply onto a sample image for
      * {@link #showSampleImageInPhotoImageView(int)}.
      */
@@ -125,10 +130,10 @@ public class DetailActivity extends AppCompatActivity implements
     private int id;
 
     /**
-     * Contains the {@code byte[]} representation of the image corresponding with this product. If
-     * {@code null}, then this product has no picture.
+     * A path to the file containing the image corresponding with this product. If {@code null},
+     * then this product has no picture.
      */
-    private byte[] picture;
+    private String picturePath;
 
     /**
      * Launches an activity to the camera to capture an image for the product.
@@ -136,10 +141,10 @@ public class DetailActivity extends AppCompatActivity implements
     private ActivityResultLauncher<Uri> takePictureActivityResultLauncher;
 
     /**
-     * File containing the image captured by the camera in the activity started by
+     * File path to the image captured by the camera in the activity started by
      * {@link #takePictureActivityResultLauncher}.
      */
-    private File takePictureFile;
+    private String takePicturePath;
 
     /**
      * Launches an activity to pick an image for the product.
@@ -177,6 +182,8 @@ public class DetailActivity extends AppCompatActivity implements
 
         Intent intent = getIntent();
         selectedProductUri = intent.getData();
+
+        isLoadDone = false;
 
         sampleImageBackgroundColors = getResources().getIntArray(R.array.sample_image_backgrounds);
 
@@ -328,7 +335,7 @@ public class DetailActivity extends AppCompatActivity implements
                 ProductContract.ProductEntry.COLUMN_SUPPLIER,
                 ProductContract.ProductEntry.COLUMN_SUPPLIER_PHONE_NUMBER,
                 ProductContract.ProductEntry.COLUMN_SUPPLIER_EMAIL,
-                ProductContract.ProductEntry.COLUMN_PICTURE
+                ProductContract.ProductEntry.COLUMN_PICTURE_PATH
         };
         return new CursorLoader(
                 this,
@@ -349,9 +356,8 @@ public class DetailActivity extends AppCompatActivity implements
      */
     @Override
     public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor data) {
-        boolean hasFirstRow = data.moveToFirst();
-        if (!hasFirstRow) {
-            // Cursor is empty.
+        if (isLoadDone || !data.moveToFirst()) {
+            // Cursor has already been loaded or Cursor is empty.
             return;
         }
 
@@ -365,7 +371,9 @@ public class DetailActivity extends AppCompatActivity implements
         int supplierEmailColumnIndex = data.getColumnIndex(
                 ProductContract.ProductEntry.COLUMN_SUPPLIER_EMAIL
         );
-        int pictureColumnIndex = data.getColumnIndex(ProductContract.ProductEntry.COLUMN_PICTURE);
+        int picturePathColumnIndex = data.getColumnIndex(
+                ProductContract.ProductEntry.COLUMN_PICTURE_PATH
+        );
 
         id = data.getInt(idColumnIndex);
         String name = data.getString(nameColumnIndex);
@@ -374,7 +382,7 @@ public class DetailActivity extends AppCompatActivity implements
         String supplier = data.getString(supplierColumnIndex);
         String supplierPhoneNumber = data.getString(supplierPhoneNumberColumnIndex);
         String supplierEmail = data.getString(supplierEmailColumnIndex);
-        picture = data.getBlob(pictureColumnIndex);
+        picturePath = data.getString(picturePathColumnIndex);
 
         nameTextInputEditText.setText(name);
         priceTextInputEditText.setText(price);
@@ -382,13 +390,15 @@ public class DetailActivity extends AppCompatActivity implements
         supplierTextInputEditText.setText(supplier);
         supplierPhoneNumberTextInputEditText.setText(supplierPhoneNumber);
         supplierEmailTextInputEditText.setText(supplierEmail);
-        if (picture == null) {
+        if (picturePath == null) {
             // Show sample image.
             showSampleImageInPhotoImageView(id);
         } else {
             // Show stored image.
-            showImageInPhotoImageView(picture);
+            showImageInPhotoImageView(picturePath);
         }
+
+        isLoadDone = true;
     }
 
     /**
@@ -405,7 +415,7 @@ public class DetailActivity extends AppCompatActivity implements
         supplierTextInputEditText.setText("");
         supplierPhoneNumberTextInputEditText.setText("");
         supplierEmailTextInputEditText.setText("");
-        picture = null;
+        picturePath = null;
         showSampleImageInPhotoImageView(id);
     }
 
@@ -471,15 +481,16 @@ public class DetailActivity extends AppCompatActivity implements
 
     /**
      * Invoked when the take new photo button is clicked. It launches an intent to the device's
-     * camera to take a photo. It puts the photo file in {@link #takePictureFile} and invokes
+     * camera to take a photo. It puts the photo file in {@link #takePicturePath} and invokes
      * {@link #onTakePictureActivityResult(boolean)} when done.
      */
     private void onTakeNewPhotoButtonClick() {
-        takePictureFile = createFile();
+        File file = createNewInternalFile();
+        takePicturePath = file.getAbsolutePath();
         Uri takePictureUri = FileProvider.getUriForFile(
                 this,
                 FILE_PROVIDER_AUTHORITY,
-                takePictureFile
+                file
         );
         takePictureActivityResultLauncher.launch(takePictureUri);
     }
@@ -489,7 +500,7 @@ public class DetailActivity extends AppCompatActivity implements
      * and shows the sample image in the UI.
      */
     private void onRemovePhotoButtonClick() {
-        picture = null;
+        picturePath = null;
         showSampleImageInPhotoImageView(id);
     }
 
@@ -657,7 +668,7 @@ public class DetailActivity extends AppCompatActivity implements
         values.put(ProductContract.ProductEntry.COLUMN_SUPPLIER, supplier);
         values.put(ProductContract.ProductEntry.COLUMN_SUPPLIER_PHONE_NUMBER, supplierPhoneNumber);
         values.put(ProductContract.ProductEntry.COLUMN_SUPPLIER_EMAIL, supplierEmail);
-        values.put(ProductContract.ProductEntry.COLUMN_PICTURE, picture);
+        values.put(ProductContract.ProductEntry.COLUMN_PICTURE_PATH, picturePath);
 
         if (selectedProductUri == null) {
             // Add a product.
@@ -698,8 +709,8 @@ public class DetailActivity extends AppCompatActivity implements
         if (!isSuccess) {
             return;
         }
-        picture = copyImageFileToByteArray(takePictureFile);
-        showImageInPhotoImageView(picture);
+        picturePath = takePicturePath;
+        showImageInPhotoImageView(picturePath);
     }
 
     /**
@@ -713,9 +724,9 @@ public class DetailActivity extends AppCompatActivity implements
         if (uri == null) {
             return;
         }
-        File file = copyImageUriToFile(uri);
-        picture = copyImageFileToByteArray(file);
-        showImageInPhotoImageView(picture);
+        File file = copyImageUriToNewInternalFile(uri);
+        picturePath = file.getAbsolutePath();
+        showImageInPhotoImageView(picturePath);
     }
 
     /**
@@ -725,6 +736,10 @@ public class DetailActivity extends AppCompatActivity implements
      */
     private void showSnackbar(@StringRes int resId) {
         Snackbar.make(detailCoordinatorLayout, resId, BaseTransientBottomBar.LENGTH_SHORT).show();
+    }
+
+    private void saveProduct() {
+
     }
 
     /**
@@ -841,7 +856,7 @@ public class DetailActivity extends AppCompatActivity implements
      */
     @SuppressLint("SimpleDateFormat")
     @NonNull
-    private File createFile() {
+    private File createNewInternalFile() {
         String timestamp = new SimpleDateFormat(FILE_TIMESTAMP_PATTERN).format(new Date());
         String fileName = String.format(FILE_NAME, timestamp);
         File fileDir = getFilesDir();
@@ -855,8 +870,8 @@ public class DetailActivity extends AppCompatActivity implements
      * @return A new {@link File} instance.
      */
     @NonNull
-    private File copyImageUriToFile(@NonNull Uri uri) {
-        File file = createFile();
+    private File copyImageUriToNewInternalFile(@NonNull Uri uri) {
+        File file = createNewInternalFile();
         try {
             InputStream inputStream = getContentResolver().openInputStream(uri);
             OutputStream outputStream = new FileOutputStream(file);
@@ -871,21 +886,6 @@ public class DetailActivity extends AppCompatActivity implements
             Log.e(TAG, e.toString());
         }
         return file;
-    }
-
-    /**
-     * Copies a file containing a picture to a {@code byte[]}.
-     *
-     * @param file File to copy from.
-     * @return {@code byte[]} equivalent of the picture.
-     */
-    @NonNull
-    private byte[] copyImageFileToByteArray(@NonNull File file) {
-        String filePath = file.getAbsolutePath();
-        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream);
-        return outputStream.toByteArray();
     }
 
     /**
@@ -905,13 +905,13 @@ public class DetailActivity extends AppCompatActivity implements
     /**
      * Displays an image resource in the given image view.
      *
-     * @param array {@code byte[]} representation of the image to display.
+     * @param filePath Path to the file containing the image to display.
      */
-    private void showImageInPhotoImageView(@NonNull byte[] array) {
+    private void showImageInPhotoImageView(@NonNull String filePath) {
         photoImageView.setColorFilter(null);
         photoImageView.setBackgroundColor(getColor(android.R.color.transparent));
 
-        Bitmap bitmap = BitmapFactory.decodeByteArray(array, 0, array.length);
+        Bitmap bitmap = BitmapFactory.decodeFile(filePath);
         photoImageView.setImageBitmap(bitmap);
     }
 }

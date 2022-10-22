@@ -49,7 +49,7 @@ public class ProductDbHelper extends SQLiteOpenHelper {
                 + ProductContract.ProductEntry.COLUMN_SUPPLIER + " TEXT NOT NULL, "
                 + ProductContract.ProductEntry.COLUMN_SUPPLIER_PHONE_NUMBER + " TEXT NOT NULL, "
                 + ProductContract.ProductEntry.COLUMN_SUPPLIER_EMAIL + " TEXT NOT NULL, "
-                + ProductContract.ProductEntry.COLUMN_PICTURE + " BLOB);";
+                + ProductContract.ProductEntry.COLUMN_PICTURE_PATH + " TEXT);";
         db.execSQL(SQL_CREATE_PRODUCTS_TABLE);
     }
 
