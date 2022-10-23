@@ -1,4 +1,4 @@
-package com.davidread.clothescatalog.util;
+package com.davidread.clothescatalog2.util;
 
 import android.text.Editable;
 import android.text.TextWatcher;

@@ -1,4 +1,4 @@
-package com.davidread.clothescatalog.view;
+package com.davidread.clothescatalog2.view;
 
 import android.annotation.SuppressLint;
 import android.content.ActivityNotFoundException;
@@ -35,11 +35,11 @@ import androidx.loader.app.LoaderManager;
 import androidx.loader.content.CursorLoader;
 import androidx.loader.content.Loader;
 
-import com.davidread.clothescatalog.BuildConfig;
-import com.davidread.clothescatalog.R;
-import com.davidread.clothescatalog.database.ProductContract;
-import com.davidread.clothescatalog.database.ProductProviderUtils;
-import com.davidread.clothescatalog.util.RegexTextWatcher;
+import com.davidread.clothescatalog2.BuildConfig;
+import com.davidread.clothescatalog2.R;
+import com.davidread.clothescatalog2.database.ProductContract;
+import com.davidread.clothescatalog2.database.ProductProviderUtils;
+import com.davidread.clothescatalog2.util.RegexTextWatcher;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
