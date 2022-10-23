@@ -5,7 +5,7 @@ plugins {
 android {
     compileSdk 33
     defaultConfig {
-        applicationId "com.davidread.clothescatalog"
+        applicationId "com.davidread.clothescatalog2"
         minSdk 24
         targetSdk 33
         versionCode 1

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.davidread.clothescatalog">
+    package="com.davidread.clothescatalog2">
 
     <uses-feature
         android:name="android.hardware.camera"
@@ -25,7 +25,7 @@
         tools:targetApi="31">
 
         <activity
-            android:name=".view.InventoryActivity"
+            android:name="com.davidread.clothescatalog2.view.InventoryActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,15 +34,15 @@
         </activity>
 
         <activity
-            android:name=".view.DetailActivity"
-            android:parentActivityName=".view.InventoryActivity">
+            android:name="com.davidread.clothescatalog2.view.DetailActivity"
+            android:parentActivityName="com.davidread.clothescatalog2.view.InventoryActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".view.DetailActivity" />
+                android:value="com.davidread.clothescatalog2.view.DetailActivity" />
         </activity>
 
         <provider
-            android:name=".database.ProductProvider"
+            android:name="com.davidread.clothescatalog2.database.ProductProvider"
             android:authorities="${applicationId}"
             android:exported="false" />
 

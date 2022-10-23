@@ -1,4 +1,4 @@
-package com.davidread.clothescatalog.database;
+package com.davidread.clothescatalog2.database;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
