@@ -13,7 +13,7 @@ public final class ProductContract {
     /**
      * Unique identifier for the content provider.
      */
-    public static final String CONTENT_AUTHORITY = "com.davidread.clothescatalog";
+    public static final String CONTENT_AUTHORITY = "com.davidread.clothescatalog2";
 
     /**
      * Base content URI to refer to data in the content provider.

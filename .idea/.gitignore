@@ -3,3 +3,7 @@
 /workspace.xml
 /compiler.xml
 /deploymentTargetDropDown.xml
+/.name
+/AndroidProjectSystem.xml
+/deploymentTargetSelector.xml
+/runConfigurations.xml
